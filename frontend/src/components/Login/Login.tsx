@@ -26,7 +26,7 @@ export default function Login() {
         let endpoint ="";
         console.log(values.phoneNumber)
        if(isPhoneNumber(values.phoneNumber))  endpoint = `${import.meta.env.VITE_BACKEND_URL}`;
-        else if(isEmail(values.phoneNumber)) endpoint = `${import.meta.env.VITE_BACKEND_URL}/student/emailLogin`;
+        else if(isEmail(values.phoneNumber)) endpoint = `${import.meta.env.VITE_BACKEND_URL}/student/loginEmail`;
         else{
             openNotification("warning","Nhập số điện thoại hoặc email");
             return;

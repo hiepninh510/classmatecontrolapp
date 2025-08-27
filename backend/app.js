@@ -12,38 +12,44 @@ var port = 3000
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import {db,FieldValue} from './src/config/firebase.js';
-
+const PORT = 3000;
 const options = {
   key: fs.readFileSync("./cert/key.pem"),
   cert: fs.readFileSync("./cert/cert.pem"),
 };
 
-const server = https.createServer(options,app);
-const io = new Server(server, {cors: {origin: "http://localhost:5173", methods: ["GET", "POST"] }});
+const server = https.createServer(options, app);
+const io = new Server(server, {
+  cors: {
+    origin: "https://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
 
-io.on('connection',(socket)=>{
+io.on("connection", (socket) => {
   socket.on("joinRoom", (roomId) => {
-      socket.join(roomId);
-      console.log(`${socket.id} joined room ${roomId}`);
-    });
-    
-    socket.on("disconnect", () => console.log("User disconnected"));
+    socket.join(roomId);
+    console.log(`${socket.id} joined room ${roomId}`);
+  });
 
-    socket.on("sendMessage", async ({ roomId, senderId, text }) => {
+  socket.on("disconnect", () => console.log("User disconnected"));
+
+  socket.on("sendMessage", async ({ roomId, senderId, text }) => {
     try {
       const messageId = uuidv4();
       const msg = {
-        id:messageId,
+        id: messageId,
         senderId,
         text,
-        createdAt: new Date()
-    };
-      const msgRef = await db.collection("chats")
-        .doc(roomId)
-        .update({messages:FieldValue.arrayUnion(msg) });
+        createdAt: new Date(),
+      };
+
+      await db.collection("chats").doc(roomId).update({
+        messages: FieldValue.arrayUnion(msg),
+      });
 
       io.to(roomId).emit("newMessage", {
-        id: msgRef.id,
+        id: messageId,
         senderId,
         text,
         createdAt: new Date().toISOString(),
@@ -52,26 +58,18 @@ io.on('connection',(socket)=>{
       console.error(err);
     }
   });
-  
-  });
-
-
+});
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use("/src", express.static(path.join(__dirname, "src")));
 
-
-https.createServer(options, app).listen(443, () => {
-  console.log("HTTPS server running on https://localhost:3000");
-});
-
 route(app);
 
-server.listen(port, () => {
- console.log(`Server is running http://localhost:${port}`);
- 
+server.listen(PORT, () => {
+  console.log(`HTTPS server running on https://localhost:${PORT}`);
 });

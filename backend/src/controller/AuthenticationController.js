@@ -8,8 +8,6 @@ const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 // const client_Twilio = twilio("AC60e69e93dc5279eb872349799d794334","d506d98252b98049e426ed3a8be9bf1d");
 const client_Twilio = twilio(TWILIO_SID,TWILIO_AUTH_TOKEN);
-
-
 export async function createAccessCode(req,res) {
     try {
         const {phoneNumber} = req.body;
@@ -34,9 +32,6 @@ export async function createAccessCode(req,res) {
                 createdAt: new Date(),
             });
         }
-
-
-
         // await client_Twilio.messages.create({
         //     body:`Code for you ${accessCode}`,
         //     from:"+15615134614",
@@ -68,10 +63,10 @@ export async function validateAccessCode(req,res) {
                 lastLogin:new Date()
             });
             // await doc.docs[0].ref.delete();
-            const userDoc = await db.collection("users").where('phoneNumber','==',phoneNumber).get();
-            const typeUser = !userDoc.empty ? userDoc.docs[0].data()?.role :"student";
+            // const userDoc =  //await db.collection("users").where('phoneNumber','==',phoneNumber).get();
+            const typeUser = data.role ||'instructor'
             //console.log(formatPhoneNumber(userDoc.docs[0].data().phoneNumber));
-            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(userDoc.docs[0].data().phoneNumber)});
+            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(data.phoneNumber)});
         }
         return res.status(400).json({success:false,message:"Invalid code"});
     } catch (error) {

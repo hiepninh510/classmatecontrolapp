@@ -1,8 +1,11 @@
 export function validatePhoneNumber(req,res,next){
     try {
-        //console.log(req.body)
+        
         if(req.body && req.body.phoneNumber){
             let phoneNumber = req.body.phoneNumber;
+            if (phoneNumber.includes("@")) {
+                return next();
+            }
             if(!phoneNumber){
                 return res.status(400).json({success:false,message:"Phone number is requied"});
             }

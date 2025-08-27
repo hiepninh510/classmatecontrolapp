@@ -266,10 +266,11 @@ export async function editPofile(req,res) {
 
 export async function loginEmail(req,res) {
     try {
-       const {email} = req.body;
+       const email = req.body.phoneNumber;
+       console.log(email)
        if(!email) return res.status(400).json({success:false, message:'Email is required'});
        const accessCode = Math.floor(100000+Math.random() * 900000).toString();
-       const accessCodeQuery = await db.collection('accessCodes').where('email','==',email).get();
+       const accessCodeQuery = await db.collection('users').where('email','==',email).get();
         await accessCodeQuery.docs[0].ref.update({
             accessCode,
             createdAt: new Date(),
@@ -299,10 +300,11 @@ export async function loginEmail(req,res) {
 
 export async function validateAccessCode(req,res) {
     try {
-        // console.log(req.body);
+        console.log(req.body);
         const {email,accessCode}=req.body;
+        console.log({email,accessCode});
         if(!accessCode || !email) return res.status(400).json({success:false,message:'Missing is params'});
-        const accessCodeQuery = await db.collection('accessCodes')
+        const accessCodeQuery = await db.collection('users')
         .where('email','==',email)
         .where('accessCode','==',accessCode)
         .get()
@@ -382,6 +384,7 @@ export async function setUpAccount(req,res) {
             password:hashedPassword,
             status:"active",
             token:"",
+            deleted:false,
             updatedAt:new Date()
         });
 
