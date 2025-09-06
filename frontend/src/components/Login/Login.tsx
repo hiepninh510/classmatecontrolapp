@@ -8,14 +8,14 @@ import { toast } from "react-toastify";
 // import { toast } from "react-toastify";
 // import { login, register } from "../services/authService";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth.tsx";
+import { useAuthRole } from "../../hooks/useAuth.tsx";
 import {useOpenNotification} from '../../hooks/notification.tsx'
 
 export default function Login() {
     const [form] = useForm();
     const [formSign] = useForm();
     const navigate = useNavigate();
-    const {isEmail,isPhoneNumber} = useAuth();
+    const {isEmail,isPhoneNumber} = useAuthRole();
     const { openNotification, contextHolder } = useOpenNotification();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModalSuccess, setIsModalSuccess] = useState(false);
@@ -24,7 +24,7 @@ export default function Login() {
   const handleSubmit = async (values: { phoneNumber: string;}) => {
     try {
         let endpoint ="";
-        console.log(values.phoneNumber)
+        // console.log(values.phoneNumber)
        if(isPhoneNumber(values.phoneNumber))  endpoint = `${import.meta.env.VITE_BACKEND_URL}`;
         else if(isEmail(values.phoneNumber)) endpoint = `${import.meta.env.VITE_BACKEND_URL}/student/loginEmail`;
         else{
@@ -35,7 +35,7 @@ export default function Login() {
         console.log(res.data)
       if (res.status === 200) {
         localStorage.setItem("phoneNumber", res.data.phoneNumber);
-        console.log("Thành công")
+        // console.log("Thành công")
         navigate("/validateAccessCode",{state:{phoneNumber:values.phoneNumber}});
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

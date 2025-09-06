@@ -7,6 +7,7 @@ router.post('/assignLesson',FormatController.validatePhoneNumber,StudentControll
 router.post('/addStudent',FormatController.validatePhoneNumber,StudentController.addStudent);
 router.post('/markLessionDone',FormatController.validatePhoneNumber,StudentController.markLessionDone);
 // router.post('/sentEmailToSetup',FormatController.validatePhoneNumber,StudentController.sentEmailToSetUp);
+router.put('/finishLession',StudentController.finishLession)
 router.post('/setupAccount',StudentController.setUpAccount);
 router.post('/loginEmail',StudentController.loginEmail);
 router.post('/validateAccessCodeStudent',StudentController.validateAccessCode);

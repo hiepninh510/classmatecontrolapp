@@ -4,8 +4,9 @@ import { useForm } from 'antd/es/form/Form';
 import React, { useState } from 'react';
 import type { LocationState } from '../../models/locationInterface.tsx';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth.tsx';
-import {useOpenNotification} from '../../hooks/notification.tsx'
+import { useAuthRole } from '../../hooks/useAuth.tsx';
+import {useAuth} from '../../hooks/ThemeContext.tsx'
+import {useOpenNotification} from '../../hooks/notification.tsx';
 
 
 export default function ValidateAccessCode(){
@@ -13,7 +14,8 @@ export default function ValidateAccessCode(){
     const [code,setCode] = useState("");
     const location = useLocation() as {state:LocationState};
     const phoneNumber = location.state?.phoneNumber;
-    const {validateAccessCode} = useAuth();
+    const {validateAccessCode} = useAuthRole();
+    const {setAuth} = useAuth()
     const { openNotification, contextHolder } = useOpenNotification();
     const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
         const value = e.target.value.replace(/\D/g,"").slice(0,6);
@@ -30,9 +32,11 @@ export default function ValidateAccessCode(){
         const res = await api.post(`${import.meta.env.VITE_BACKEND_URL}/validateAccessCode`,values)
         if(res.data.success){
           localStorage.setItem("phoneNumber",res.data.phoneNumber);
-            openNotification('success','Xác thực thành công')
+            openNotification('success','Xác thực thành công');
+            setAuth(res.data.typeUser, res.data.userName);
             setTimeout(()=>{
                 validateAccessCode(res.data.typeUser);
+                // return <AppDashBoard role={res.data.typeUser}/>
             },1000)
         } else {
             openNotification('error','Mã xác thực không tồn tại')

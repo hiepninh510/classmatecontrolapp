@@ -409,3 +409,30 @@ export async function setUpAccount(req,res) {
 //     }
 // }
 
+
+export async function finishLession(req,res){
+    try {
+        //console.log(req.body)
+        const {id,checked,phoneNumber} = req.body;
+        const lessionQuery = await db.collection('students').where('phoneNumber','==',normalPhoneNumber(phoneNumber)).get();
+        if(lessionQuery.empty) return res.status(400).json({success:false,message:"Student not found"})
+        const lessionsData = lessionQuery.docs[0];
+        const data = lessionsData.data();
+        const updateLession = data.lessions.map(item => item.id === id ? {...item,done:checked} :item);
+        await lessionsData.ref.update({lessions:updateLession})
+        const updateLessionForUI = await Promise.all(
+            updateLession.map(async (lesson) => {
+            if (!lesson.instructor) return { ...lesson, instructorName: null };
+            const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
+            const instructor = instructorSnap.exists ? instructorSnap.data().name : null;
+            return {
+            ...lesson,
+            instructor,
+            };
+        })
+        );
+        return res.status(200).json({success:true, updateLessionForUI })
+    } catch (error) {
+         return res.status(500).json({ success: false, message: "Server error" });
+    }
+}

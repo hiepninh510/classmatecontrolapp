@@ -65,8 +65,9 @@ export async function validateAccessCode(req,res) {
             // await doc.docs[0].ref.delete();
             // const userDoc =  //await db.collection("users").where('phoneNumber','==',phoneNumber).get();
             const typeUser = data.role ||'instructor'
+            const userName = data.name;
             //console.log(formatPhoneNumber(userDoc.docs[0].data().phoneNumber));
-            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(data.phoneNumber)});
+            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(data.phoneNumber),userName});
         }
         return res.status(400).json({success:false,message:"Invalid code"});
     } catch (error) {

@@ -3,9 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Login from './components/Login/Login'
 import ValidateAccessCode from './components/ValidateAccessCode/ValidateAccessCode.tsx';
 import SetupAccount from './components/SetUpAccount/SetUpAccount.tsx';
-import DashboardStudent from './components/Student/Student.tsx';
-import DashboardInstructor from './components/Instructor/Instructor.tsx';
-import ChatApp from './components/Instructor/Chat.tsx';
+import MessageWithStudent from './components/Instructor/Message.tsx';
+import { AppDashBoard } from './components/AppDashboard.tsx';
 function App() {
   return(
     <>
@@ -14,9 +13,8 @@ function App() {
       <Route path="/" element={<Login/>}></Route>
       <Route path='/validateAccessCode' element={<ValidateAccessCode/>}></Route>
       <Route path='/setup/' element={<SetupAccount/>}></Route>
-      <Route path='/student/dashboard' element={<DashboardStudent/>}></Route>
-      <Route path='/instructor/dashboard'element={<DashboardInstructor/>}></Route>
-      <Route path='/chats' element={<ChatApp/>}></Route>
+      <Route path='/dashboard' element={<AppDashBoard/>}></Route>
+      <Route path='/chats' element={<MessageWithStudent/>}></Route>
     </Routes>
     </BrowserRouter>
 

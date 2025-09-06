@@ -20,9 +20,17 @@ export default function ListLession(){
     const [lesions,setLessions] = useState<Lession[]>([]);
 
 
-    const handleCheck = (id:string,checked:boolean)=>{
-        setLessions((prev)=>prev.map((item)=>item.id===id?{...item,done:checked}:item));
-    }
+    const handleCheck = async (id:string,checked:boolean)=>{
+      // console.log("cjecked",checked);
+        // setLessions((prev)=>prev.map((item)=>item.id===id?{...item,done:checked}:item));
+        try {
+          const phoneNumber = localStorage.getItem('phoneNumber');
+          const updateDone = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/student/finishLession`,{id,checked,phoneNumber});
+          if(updateDone.status === 200) setLessions(updateDone.data.updateLessionForUI)
+        } catch (error) {
+          console.log(error);
+        }
+        }
 
 const columns: TableProps<Lession>['columns'] = [
   {
@@ -69,8 +77,7 @@ const columns: TableProps<Lession>['columns'] = [
         setLoading(true);
         const myPhone = localStorage.getItem("phoneNumber");
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/myLessions?phone=${myPhone}`); 
-        // URL backend của bạn (bạn đổi cho đúng)
-        console.log(res.data.myLessions)
+        // console.log(res.data.myLessions)
         setLessions(res.data.myLessions);
       } catch (error) {
         console.error("Lỗi khi fetch lessons:", error);
@@ -89,7 +96,7 @@ const columns: TableProps<Lession>['columns'] = [
             loading={laoding}
             rowKey='id'
             columns={columns} 
-            dataSource={Array.isArray(lesions) ? lesions : []} />;
+            dataSource={Array.isArray(lesions) ? lesions : []} />
         </>
     )
 }
