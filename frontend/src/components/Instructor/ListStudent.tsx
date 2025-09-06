@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {useOpenNotification} from '../../hooks/notification.tsx';
 import { BookOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 interface Student {
   id: string;
   name:string,
@@ -12,8 +12,12 @@ interface Student {
   email:string
 }
 
+interface ListStudentProps{
+  openChat:(id:string) => void;
+}
 
-export default function ListStudent(){
+
+export default function ListStudent({openChat}:ListStudentProps){
     const [laoding,setLoading] = useState(false);
     const [student,setStudent] = useState<Student[]>([]);
     const [isModalOpen,setIsModalOpen] = useState(false);
@@ -21,7 +25,7 @@ export default function ListStudent(){
     const [editingStudent,setEditingStudent] = useState<Student|null>(null);
     const[form] = Form.useForm();
     const { openNotification, contextHolder } = useOpenNotification();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     //const [assignForm] = Form.useForm();
@@ -52,7 +56,8 @@ const columns: TableProps<Student>['columns'] = [
         <Button
           type="link"
           icon={<MessageOutlined />}
-          onClick={() => openChat(record.id)}
+          onClick={() => onOpenChat(record.id)}
+          //onClick={()=>onMessageClick(record.id)}
         />
         <Button type="link" icon={<BookOutlined />} onClick={() => openAssignModal(record)} />
         <Button type="link" icon={<DeleteOutlined />} danger onClick={() => openDeleteModal(record)} />
@@ -79,7 +84,7 @@ const columns: TableProps<Student>['columns'] = [
     fetchStudent();
   }, []);
 
-  const openChat = async (studentId: string) => {
+  const onOpenChat = async (studentId: string) => {
   try {
     const phoneNumber = localStorage.getItem('phoneNumber');
     console.log({phoneNumber,studentId})
@@ -87,7 +92,8 @@ const columns: TableProps<Student>['columns'] = [
       `${import.meta.env.VITE_BACKEND_URL}/chats`,{phoneNumber,studentId});
 
     if (res.data.success) {
-      navigate(`/chats`);
+      // navigate(`/chats`);
+      openChat(studentId);
     } else {
       openNotification("error", "Không thể mở phòng chat");
     }

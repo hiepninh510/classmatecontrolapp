@@ -17,10 +17,16 @@ import { useAuth } from "../hooks/ThemeContext";
 
 export function AppDashBoard(){
     const [selectKey,setSelectKey] = useState('1');
-    const {role, userName} = useAuth()
+    const {role, userName} = useAuth();
+     const [chatTarget, setChatTarget] = useState<string | null>(null);
 
     if (!role || !userName) {
         return null; // hoặc UI loading
+    }
+
+    const handleOpenChat = (studentId:string)=>{
+        setChatTarget(studentId);
+        setSelectKey("2");
     }
 
     const renderContext = ()=>{
@@ -37,9 +43,9 @@ export function AppDashBoard(){
         if(role ==='instructor'){
             switch(selectKey){
                 case "1":
-                    return (<><ListStudent/></>)
+                    return (<><ListStudent openChat={handleOpenChat} /></>)
                 case '2':
-                    return (<><MessageWithStudent/></>)
+                    return (<><MessageWithStudent chatTarget={chatTarget}/></>)
             }
         }
     }

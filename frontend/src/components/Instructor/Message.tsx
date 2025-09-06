@@ -1,8 +1,8 @@
 import ChatApp from "./Chat"
-export default function MessageWithStudent(){
+export default function MessageWithStudent({ chatTarget }: { chatTarget?: string | null }){
     return(
         <>
-            <ChatApp/>
+            <ChatApp chatTarget={chatTarget}/>
         </>
     )
 }

@@ -9,37 +9,51 @@ interface ChatRoom {
   participants: string[];
 }
 
-export default function ChatApp() {
+export default function ChatApp({ chatTarget }: { chatTarget?: string | null }) {
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const values = {
-          phoneNumber: localStorage.getItem("phoneNumber"),
-        };
+          const values = {
+            phoneNumber: localStorage.getItem("phoneNumber"),
+          };
+  
+          if (!values.phoneNumber) return;
+  
+          const res = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/chats/messages`,
+            values
+          );
+          // console.log(res.data.chatRooms)
+          if (res.data.success) {
+            setRooms(res.data.chatRooms ?? []);
+        }
 
-        if (!values.phoneNumber) return;
-
-        const res = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/chats/messages`,
-          values
-        );
-        // console.log(res.data.chatRooms)
-        if (res.data.success) {
-          setRooms(res.data.chatRooms ?? []);
+        if(chatTarget){
+          const targetRoom = (res.data.chatRooms ?? []).find((room:ChatRoom)=>
+          room.participants.includes(chatTarget))
+          if(chatTarget && targetRoom) setActiveRoom(targetRoom.id);
         }
       } catch (error) {
         console.error("Lỗi khi load danh sách phòng chat:", error);
       }
     };
 
-    socket.connect();
-    socket.emit('joinRoom',activeRoom)
-    
+  
     fetchRooms();
-  }, [activeRoom]);
+  }, [chatTarget]);
+
+  useEffect(() => {
+  if (!activeRoom) return;
+  socket.connect();
+  socket.emit("joinRoom", activeRoom);
+
+  return () => {
+    socket.emit("leaveRoom", activeRoom);
+  };
+}, [activeRoom]);
 
   const activeRoomData = rooms.find((r) => r.id === activeRoom);
 
