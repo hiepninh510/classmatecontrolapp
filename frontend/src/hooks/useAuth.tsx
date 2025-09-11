@@ -6,12 +6,12 @@ export const useAuthRole = () => {
         try {
             if(typeUser === "student"){
               sessionStorage.setItem("role",typeUser);
-                navigate("/dashboard");
+                navigate("/student/dashboard");
             }
             else{
               typeUser = "instructor";
               sessionStorage.setItem("role",typeUser);
-                navigate("/dashboard")
+                navigate("/instructor/dashboard")
             } ;
                 
                 

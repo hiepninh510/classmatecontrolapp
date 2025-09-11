@@ -1,29 +1,32 @@
 import { BellOutlined, UserOutlined } from "@ant-design/icons"
 import { Avatar, Badge, Layout, Menu, Tooltip } from "antd"
+import { useNavigate } from "react-router-dom"
 
 
 interface HeaderProps{
     role:'student'|'instructor',
     userName:string,
-    selectKey:string,
-    onSelectKey:(key:string) => void
 }
 
-export function AppHeader({role,userName,selectKey,onSelectKey}:HeaderProps){
+export function AppHeader({role,userName}:HeaderProps){
+
+    const navigate = useNavigate();
 
     
-const menuConfig:Record<"student"|"instructor",{key:string,label:string}[]> = {
+const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:string}[]> = {
     student:[
-        {key:'1',label:"Danh sách bài học"},
-        {key:'2',label:"Message"},
-        {key:'3', label:"Tài khoản"}
+        {key:'1',label:"Danh sách bài học",path:"student/dashboard"},
+        {key:'2',label:"Message",path:"student/messages"},
+        {key:'3', label:"Tài khoản",path:"student/profile"}
     ],
     instructor:[
-        {key:'1',label:"Danh sách sinh viên"},
-        {key:'2',label:"Message"}
+        {key:'1',label:"Danh sách sinh viên",path:"/instructor/dashboard"},
+        {key:'2',label:"Message",path:"/instructor/messages"}
     ]
 
 }
+
+const currentKey = menuConfig[role].find((item)=>location.pathname.startsWith(item.path))?.key||'1';
 
     return (
         <>
@@ -32,10 +35,12 @@ const menuConfig:Record<"student"|"instructor",{key:string,label:string}[]> = {
             <Menu
             theme="dark"
             mode="horizontal"
-            selectedKeys={[selectKey]}
-            items={menuConfig[role]}
+            selectedKeys={[currentKey]}
+            items={menuConfig[role].map((item) => ({
+                key: item.key,
+                label: item.label,
+                onClick: () => navigate(item.path)}))}
             style={{ flex: 1, minWidth: 0 }}
-            onClick={(e) => onSelectKey(e.key)}
             />
             {/* Icon chuông thông báo */}
             <Badge count={5} size="small">
@@ -44,7 +49,6 @@ const menuConfig:Record<"student"|"instructor",{key:string,label:string}[]> = {
             />
             </Badge>
 
-            {/* Avatar + tooltip hiển thị tên */}
             <Tooltip title={userName}>
             <Avatar
                 size="large"

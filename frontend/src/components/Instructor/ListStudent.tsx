@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {useOpenNotification} from '../../hooks/notification.tsx';
 import { BookOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 interface Student {
   id: string;
   name:string,
@@ -12,12 +12,8 @@ interface Student {
   email:string
 }
 
-interface ListStudentProps{
-  openChat:(id:string) => void;
-}
 
-
-export default function ListStudent({openChat}:ListStudentProps){
+export default function ListStudent(){
     const [laoding,setLoading] = useState(false);
     const [student,setStudent] = useState<Student[]>([]);
     const [isModalOpen,setIsModalOpen] = useState(false);
@@ -25,10 +21,11 @@ export default function ListStudent({openChat}:ListStudentProps){
     const [editingStudent,setEditingStudent] = useState<Student|null>(null);
     const[form] = Form.useForm();
     const { openNotification, contextHolder } = useOpenNotification();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     //const [assignForm] = Form.useForm();
+
 
 const columns: TableProps<Student>['columns'] = [
   {
@@ -92,8 +89,7 @@ const columns: TableProps<Student>['columns'] = [
       `${import.meta.env.VITE_BACKEND_URL}/chats`,{phoneNumber,studentId});
 
     if (res.data.success) {
-      // navigate(`/chats`);
-      openChat(studentId);
+      navigate(`/instructor/messages/${studentId}`);
     } else {
       openNotification("error", "Không thể mở phòng chat");
     }
