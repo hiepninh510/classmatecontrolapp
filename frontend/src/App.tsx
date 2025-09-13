@@ -8,6 +8,7 @@ import AppLayout from './components/AppLayout.tsx';
 import ListLession from './components/Student/ListLession.tsx';
 import MessageWithInstructor from './components/Student/Message.tsx';
 import ListStudent from './components/Instructor/ListStudent.tsx';
+import ProfilePage from './components/Student/Profile.tsx';
 function App() {
   return(
     <>
@@ -16,10 +17,14 @@ function App() {
       <Route path="/" element={<Login/>}></Route>
       <Route path='/validateAccessCode' element={<ValidateAccessCode/>}></Route>
       <Route path='/setup/' element={<SetupAccount/>}></Route>
+
       <Route path="student" element={<AppLayout/>}>
         <Route path='dashboard' element={<ListLession/>}></Route>
         <Route path='messages' element={<MessageWithInstructor/>}></Route>
+        <Route path='messages/:instructorId' element={<MessageWithInstructor/>}></Route>
+        <Route path='profile' element={<ProfilePage/>}></Route>
       </Route>
+
       <Route path="instructor" element={<AppLayout/>}>
         <Route path='dashboard' element={<ListStudent/>}></Route>
         <Route path='messages' element={<MessageWithStudent/>}></Route>

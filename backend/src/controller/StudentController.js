@@ -208,10 +208,10 @@ export async function getMyLession(req,res) {
       lessons.map(async (lesson) => {
         if (!lesson.instructor) return { ...lesson, instructorName: null };
         const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
-        const instructor = instructorSnap.exists ? instructorSnap.data().name : null;
+        const instructorName = instructorSnap.exists ? instructorSnap.data().name : null;
         return {
           ...lesson,
-          instructor,
+          instructorName,
         };
       })
     );

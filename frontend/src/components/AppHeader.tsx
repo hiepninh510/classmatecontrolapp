@@ -15,9 +15,9 @@ export function AppHeader({role,userName}:HeaderProps){
     
 const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:string}[]> = {
     student:[
-        {key:'1',label:"Danh sách bài học",path:"student/dashboard"},
-        {key:'2',label:"Message",path:"student/messages"},
-        {key:'3', label:"Tài khoản",path:"student/profile"}
+        {key:'1',label:"Danh sách bài học",path:"/student/dashboard"},
+        {key:'2',label:"Message",path:"/student/messages"},
+        {key:'3', label:"Tài khoản",path:"/student/profile"}
     ],
     instructor:[
         {key:'1',label:"Danh sách sinh viên",path:"/instructor/dashboard"},

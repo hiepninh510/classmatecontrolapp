@@ -53,7 +53,6 @@ export async function openChatRoomOfStudent(req, res) {
     }
 
     const idStudent = studentQuery.docs[0].id;
-    console.log("id",idStudent)
     const snapshot = await db.collection("chats")
       .where("participants", "array-contains", idStudent)
       .get();
@@ -160,7 +159,7 @@ export async function getMessagesOfRoom(req,res) {
       if(query.empty) return res.status(500).json({success:false,messages:"Số điện thoại bị lỗi"});
     }
     const senderId = query.docs[0].id;
-    console.log(senderId);
+    //console.log(senderId);
     const chatDoc = await db.collection("chats").doc(idRoom).get();
     const data = chatDoc.data();
     const messages = (data.messages || []).map((msg) => ({

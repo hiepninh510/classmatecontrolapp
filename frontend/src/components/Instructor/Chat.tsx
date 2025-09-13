@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import ChatBox from "./ChatBox.tsx";
 import axios from "axios";
 import socket from '../ChatSocket/socket.tsx'
+import ChatBox from "./ChatBox.tsx";
 
 interface ChatRoom {
   id: string;

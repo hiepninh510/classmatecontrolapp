@@ -20,6 +20,7 @@ export default function ChatBoxOfStudent({ roomId }: ChatBoxProps) {
 
   useEffect(() => {
     socket.connect();
+    if (!roomId) return;
     socket.emit("joinRoom", roomId);
 
     const fetchMessages = async () => {
@@ -29,7 +30,6 @@ export default function ChatBoxOfStudent({ roomId }: ChatBoxProps) {
         if (res.data.success) {
           setMessages(res.data.messages);
           setSenderId(res.data.senderId);
-          // console.log(messages);
         }
       } catch (err) {
         console.error(err);
@@ -50,9 +50,6 @@ export default function ChatBoxOfStudent({ roomId }: ChatBoxProps) {
 
   const handleSend = async () => {
     if (!newMessage.trim()||!senderId) return;
-    //const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor?phoneNumber=${localStorage.getItem('phoneNumber')}`);
-    // setSenderId(res.data.senderId);
-    //if (!senderId) return;
 
     socket.emit("sendMessage", { roomId, senderId, text: newMessage });
 

@@ -4,12 +4,14 @@ import { Checkbox } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Lession {
   id: string;
   title: string;
   description?: string;
   instructor: string;
+  instructorName:string;
   createAt: Date;
   done:boolean
 }
@@ -18,6 +20,7 @@ interface Lession {
 export default function ListLession(){
     const [laoding,setLoading] = useState(false);
     const [lesions,setLessions] = useState<Lession[]>([]);
+    const navigate = useNavigate();
 
 
     const handleCheck = async (id:string,checked:boolean)=>{
@@ -46,8 +49,17 @@ const columns: TableProps<Lession>['columns'] = [
   },
   {
     title: 'Giảng viên',
-    dataIndex: 'instructor',
+    dataIndex: 'instructorName',
     key: 'instructor',
+    render:(text,record) =>(
+      <a style={{ cursor: "pointer", color: "#1677ff" }}
+      onClick={() => {
+          navigate(`/student/messages/${record.instructor}`);
+        }}
+      >
+      {text}
+      </a>
+    ),
   },
   {
     title: 'Ngày Giao',
