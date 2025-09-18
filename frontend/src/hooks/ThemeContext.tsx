@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type AutheContextType = {
+    id:string | null,
     role: 'student'|"instructor"|null;
     userName:string|null;
-    setAuth:(role:"student"|"instructor", userName: string)=>void;
+    setAuth:(role:"student"|"instructor", userName: string, id:string)=>void;
     clearAuth:()=>void;
 }
 
@@ -11,31 +12,37 @@ const AuthContext = createContext<AutheContextType |undefined>(undefined);
 
 export const AuthProvider = ({children}:{children:ReactNode})=>{
     const [role, setRole] = useState<"student" | "instructor"|null>(null);
+    const [id,setId] = useState<string|null>(null)
     const [userName, setUserName] = useState<string | null>(null);
     const [loading,setLoading] = useState(true);
 
     useEffect(()=>{
       const storeRole = localStorage.getItem("role") as "student" | "instructor" | null;
       const storeUserName = localStorage.getItem("userName");
+      const storeId = localStorage.getItem("id");
 
       if(storeRole) setRole(storeRole);
       if(storeUserName) setUserName(storeUserName);
+      if(storeId) setId(storeId);
 
       setLoading(false);
     },[]);
 
-    const setAuth = (role: "student" | "instructor", userName: string) => {
-    setRole(role);
-    setUserName(userName);
+    const setAuth = (role: "student" | "instructor", userName: string, id:string) => {
+      setRole(role);
+      setUserName(userName);
+      setId(id);
 
-    localStorage.setItem("role", role);
-    localStorage.setItem("userName", userName);
+      localStorage.setItem("id",id)
+      localStorage.setItem("role", role);
+      localStorage.setItem("userName", userName);
   };
 
   const clearAuth = () => {
     setRole(null);
     setUserName(null);
-
+    setId(null);
+    localStorage.removeItem("id");
     localStorage.removeItem("role");
     localStorage.removeItem("userName");
   };
@@ -47,7 +54,7 @@ export const AuthProvider = ({children}:{children:ReactNode})=>{
 
 
    return (
-    <AuthContext.Provider value={{ role , userName, setAuth, clearAuth }}>
+    <AuthContext.Provider value={{ role , userName, id, setAuth, clearAuth }}>
       {children}
     </AuthContext.Provider>
   );

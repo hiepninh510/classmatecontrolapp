@@ -32,7 +32,7 @@ export default function Login() {
             return;
         }
         const res = await api.post(endpoint,values);
-        console.log(res.data)
+        // console.log(res.data)
       if (res.status === 200) {
         localStorage.setItem("phoneNumber", res.data.phoneNumber);
         // console.log("Thành công")

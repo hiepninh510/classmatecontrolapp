@@ -65,10 +65,10 @@ export async function addStudent(req,res) {
 
 export async function assignLesson(req,res){
     try {
-        console.log(req.body);
+        // console.log(req.body);
         let {phoneNumber,title,description,phoneInstructor} = req.body;
         phoneInstructor = normalPhoneNumber(phoneInstructor);
-        console.log(phoneInstructor);
+        // console.log(phoneInstructor);
         if(!title){
             return res.status(400).json({success:false,message:'Title is requied!'});
         }
@@ -300,9 +300,7 @@ export async function loginEmail(req,res) {
 
 export async function validateAccessCode(req,res) {
     try {
-        console.log(req.body);
         const {email,accessCode}=req.body;
-        console.log({email,accessCode});
         if(!accessCode || !email) return res.status(400).json({success:false,message:'Missing is params'});
         const accessCodeQuery = await db.collection('users')
         .where('email','==',email)

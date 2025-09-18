@@ -1,11 +1,11 @@
 
-import ChatAppOfStudent from "./ChatAppOfStudent"
+import { ChatRooms } from "../ChatSocket/ChatRoom";
 import { useParams } from "react-router-dom"
 export default function MessageWithInstructor(){
     const {instructorId} = useParams<{instructorId?:string}>();
     return(
         <>
-            <ChatAppOfStudent instructorId ={instructorId}/>
+            <ChatRooms idUser ={instructorId}/>
         </>
     )
 }

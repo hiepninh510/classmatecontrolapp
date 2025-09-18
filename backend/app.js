@@ -4,7 +4,7 @@ import path from 'path';
 import cors from 'cors';   
 import { Server } from 'socket.io';
 import { v4 as uuidv4 } from "uuid";
-import http from "http";
+// import http from "http";
 import https from "https";
 import fs from "fs";
 var app = express();
@@ -19,10 +19,10 @@ const options = {
 };
 
 const server = https.createServer(options, app);
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "https://localhost:5173",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST","PUT","DELETE"],
   },
 });
 
@@ -31,6 +31,11 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     console.log(`${socket.id} joined room ${roomId}`);
   });
+
+  socket.on("joinNoticationRoom",(userId) =>{
+    socket.join(userId);
+    console.log(`${socket.id} joined notification room: ${userId}`);
+  })
 
   socket.on("disconnect", () => console.log("User disconnected"));
 
@@ -58,6 +63,9 @@ io.on("connection", (socket) => {
       console.error(err);
     }
   });
+
+
+  
 });
 
 app.use(cors());

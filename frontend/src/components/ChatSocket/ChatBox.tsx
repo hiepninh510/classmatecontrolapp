@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
-import socket from "../ChatSocket/socket.tsx";
+import { useEffect, useState } from "react";
+import socket from "./socket";
+import { useAuth } from "../../hooks/ThemeContext";
 
 interface Message {
   id: string;
@@ -11,13 +12,22 @@ interface Message {
 
 interface ChatBoxProps {
   roomId: string;
+  idUser:string
 }
-
-export default function ChatBox({ roomId }: ChatBoxProps) {
+export default function ChatBox({ roomId,idUser }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [senderId, setSenderId] = useState("");
+  const [userId,setUserId] = useState<string|null>(null);
+  const {role} = useAuth();
+  const defaultNotification = {
+    message:"Vừa gửi một tin nhắn mới",
+    isRead:false,
+    creatAt:new Date(),
+    upDate:new Date(),
+    type:"message"
 
+  }
   useEffect(() => {
     socket.connect();
     socket.emit("joinRoom", roomId);
@@ -50,12 +60,39 @@ export default function ChatBox({ roomId }: ChatBoxProps) {
    
   }, [roomId]);
 
+  useEffect(()=>{
+    const fetchIdUser = async ()=>{
+      const phone = localStorage.getItem('phoneNumber');
+      if(idUser){
+        setUserId(idUser);
+      }else {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification/getIdUserToNotification`,{params:{
+          role,
+          roomId,
+          phone
+        }});
+
+        if(res.data.success) setUserId(res.data.userId);
+      }
+    }
+    console.log("iduuer",userId)
+    fetchIdUser()
+  })
+
   const handleSend = async () => {
     if (!newMessage.trim()||!senderId) return;
+    
+    const values = {
+      role,
+      phone:localStorage.getItem("phoneNumber"),
+      notification:{...defaultNotification,userId}
+    }
 
+    await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notification`,values)
+    console.log("hello")
     socket.emit("sendMessage", { roomId, senderId, text: newMessage });
-
     setNewMessage("");
+    
   };
 
   return (
@@ -90,5 +127,3 @@ export default function ChatBox({ roomId }: ChatBoxProps) {
     </div>
   );
 }
-
-

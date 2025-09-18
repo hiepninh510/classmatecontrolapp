@@ -33,7 +33,7 @@ export default function ValidateAccessCode(){
         if(res.data.success){
           localStorage.setItem("phoneNumber",res.data.phoneNumber);
             openNotification('success','Xác thực thành công');
-            setAuth(res.data.typeUser, res.data.userName);
+            setAuth(res.data.typeUser, res.data.userName,res.data.id);
             setTimeout(()=>{
                 validateAccessCode(res.data.typeUser);
                 // return <AppDashBoard role={res.data.typeUser}/>

@@ -1,4 +1,4 @@
-import { useAuth } from "../hooks/ThemeContext";
+import { useAuth } from "../../hooks/ThemeContext";
 import { AppHeader } from "./AppHeader";
 import { AppFooter } from "./AppFooter";
 import { AppContent } from "./AppContent";

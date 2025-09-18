@@ -65,9 +65,16 @@ export async function validateAccessCode(req,res) {
             // await doc.docs[0].ref.delete();
             // const userDoc =  //await db.collection("users").where('phoneNumber','==',phoneNumber).get();
             const typeUser = data.role ||'instructor'
+            let id= null;
+            if(typeUser === "instructor"){
+                id = doc.docs[0].id
+            } else {
+                const studentSnap = await db.collection("students").where("phoneNumber",'==',data.phoneNumber).get();
+                id = studentSnap.docs[0].id
+            }
             const userName = data.name;
             //console.log(formatPhoneNumber(userDoc.docs[0].data().phoneNumber));
-            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(data.phoneNumber),userName});
+            return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(data.phoneNumber),userName,id});
         }
         return res.status(400).json({success:false,message:"Invalid code"});
     } catch (error) {

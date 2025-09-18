@@ -16,6 +16,7 @@ export async function createInstructor(req,res) {
             name,
             phoneNumber,
             email,
+            role:'instructor',
             createAt:new Date()
         });
         return res.status(201).json({seccess:true,message:'Instructor added successfully'});

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import {useOpenNotification} from '../../hooks/notification.tsx';
 import { BookOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/ThemeContext.tsx';
 interface Student {
   id: string;
   name:string,
@@ -25,7 +26,7 @@ export default function ListStudent(){
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     //const [assignForm] = Form.useForm();
-
+    const {role} = useAuth();
 
 const columns: TableProps<Student>['columns'] = [
   {
@@ -133,6 +134,7 @@ const columns: TableProps<Student>['columns'] = [
   const openAssignModal = (student: Student) => {
     setEditingStudent(student);
     form.setFieldsValue({
+      id:student.id,
       name: student.name,
       phoneNumber: student.phoneNumber,
       email: student.email,
@@ -153,9 +155,26 @@ const columns: TableProps<Student>['columns'] = [
       };
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/student/assignLesson`, payload);
       if (res.data.success) {
-        openNotification("success", "Giao bài thành công");
-        setIsAssignOpen(false);
-        form.resetFields();
+        const notification={
+          userId:values.id,
+          message:'Bạn vừa được giao 1 bài tập mới!',
+          isRead:false,
+          creatAt:new Date(),
+          upDate:new Date(),
+          type:"assignment"
+        }
+        const notifiData = {
+            role,
+            phone:localStorage.getItem('phoneNumber'),
+            notification
+
+        }
+        const createNotification = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notification`,notifiData);
+        if(createNotification.data.success){
+          openNotification("success", "Giao bài thành công");
+          setIsAssignOpen(false);
+          form.resetFields();
+        }
       } else {
         openNotification("error", "Giao bài thất bại");
       }
@@ -248,7 +267,11 @@ const handleDeleteCancel = () => {
         onOk={handleAssignOk}
         onCancel={() => setIsAssignOpen(false)}
       >
+        
         <Form form={form} layout="vertical">
+          <Form.Item name="id" hidden>
+            <Input type="hidden" />
+          </Form.Item>
           <Form.Item label="Tên Sinh Viên" name="name">
             <Input disabled />
           </Form.Item>
