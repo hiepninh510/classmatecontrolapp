@@ -23,7 +23,7 @@ export async function creatNotification(req,res){
         const newNotification = {
             ...notification,
             senderId,
-            senderName
+            senderName,
         }
         const notificationDocRef = await db.collection("notifications").add(newNotification);
 
@@ -45,10 +45,10 @@ export async function getNotifications(req,res) {
         let dataNotiSnap = null;
         switch (role) {
             case "student":
-                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isRead","==",false).get();
+                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
                 break;
             case "instructor":
-                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isRead","==",false).get();
+                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
                 break;
             default:
                 break;
@@ -98,6 +98,71 @@ export async function getIdUserToNotification(req,res){
         // console.log("userId",userId);
         return res.status(200).json({success:true,userId});
 
+    } catch (error) {
+        return res.status(500).json({success:false,error:error.message});
+    }
+}
+
+export async function updateIsRead(req,res) {
+    try {
+        const {id} = req.body;
+        if(!id) return res.status(400).json({success:false,message:"Id undefined!!!"});
+        const notiRef = db.collection("notifications").doc(id);
+        const notiSnap = await notiRef.get();
+        if(!notiSnap.exists) return res.status(404).json({success:false,message:"Notification is not exist!!!"});
+
+        await notiRef.update({isRead:true});
+        return res.status(200).json({success:true,message:"Update success!"});
+
+    } catch (error) {
+         return res.status(500).json({success:false,error:error.message});
+    }
+}
+
+export async function deleteOneNotification(req,res) {
+    try {
+        const {id} = req.query;
+        if(!id) return res.status(400).json({success:false,message:"Id not exists!!!"});
+        const notiRef = db.collection("notifications").doc(id);
+        const notiSnap = await notiRef.get();
+        if(!notiSnap.exists) return res.status(404).json({success:false,message:"Notification is not exist!!!"});
+
+        await notiRef.update({isDelete:true});
+        return res.status(200).json({success:true,message:"Delete notification success!"});
+    } catch (error) {
+        return res.status(500).json({success:false,error:error.message});
+    }
+}
+
+export async function deleteAllNotification(req,res) {
+    try {
+        const {userId} = req.query;
+        if(!userId) return res.status(400).json({success:false,message:"UserId not exists!!!"});
+        const notiSnap = await db.collection("notifications").where("userId",'==',userId).get();
+        const batch = db.batch();
+        notiSnap.forEach((doc) =>{
+            batch.update(doc.ref,{isDelete:true});
+        })
+        await batch.commit();
+        return res.status(200).json({success:true,message:"Delete all notification success!"});
+    } catch (error) {
+        return res.status(500).json({success:false,error:error.message});
+    }
+    
+}
+
+export async function readAllNotifications(req,res) {
+    try {
+        const {id} = req.body;
+        if(!id) return res.status(400).json({success:false,message:"UserId not exists!!!!"});
+        const notiSnap = await db.collection("notifications").where("userId",'==',id).get();
+        if(notiSnap.empty) return res.status(404).jason({success:false, message:"Notification not found!!!"});
+        const batch = db.batch();
+        notiSnap.forEach((doc)=>{
+            batch.update(doc.ref,{isRead:true});
+        })
+        return res.status(200).json({success:true,message:"Update all notification is read"});
+        
     } catch (error) {
         return res.status(500).json({success:false,error:error.message});
     }

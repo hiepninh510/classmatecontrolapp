@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 // import { login, register } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { useAuthRole } from "../../hooks/useAuth.tsx";
-import {useOpenNotification} from '../../hooks/notification.tsx'
+import {useOpenNotification} from '../../hooks/Notification/notification.tsx'
 
 export default function Login() {
     const [form] = useForm();

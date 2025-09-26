@@ -3,6 +3,10 @@ import * as NotificationController from "../src/controller/NotificationControlle
 const router = Router();
 router.post('/',NotificationController.creatNotification);
 router.get("/getIdUserToNotification",NotificationController.getIdUserToNotification);
+router.delete("/deleteOneNotification",NotificationController.deleteOneNotification);
+router.delete("/deleteAllNotification",NotificationController.deleteAllNotification);
+router.put("/",NotificationController.updateIsRead);
+router.put("/readAllNotifications",NotificationController.readAllNotifications);
 router.get('/',NotificationController.getNotifications);
 
 export default router;

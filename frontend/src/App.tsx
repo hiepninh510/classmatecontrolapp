@@ -5,11 +5,11 @@ import ValidateAccessCode from './components/ValidateAccessCode/ValidateAccessCo
 import SetupAccount from './components/SetUpAccount/SetUpAccount.tsx';
 import MessageWithStudent from './components/Instructor/Message.tsx';
 import AppLayout from './components/LayOut/AppLayout.tsx';
-import ListLession from './components/Student/ListLession.tsx';
 import MessageWithInstructor from './components/Student/Message.tsx';
-import ListStudent from './components/Instructor/ListStudent.tsx';
+import ListStudent from './components/Instructor/ListStudent/ListStudent.tsx';
 import ProfilePage from './components/Student/Profile.tsx';
-import { NotificationProvider } from './hooks/notificationMessage.tsx';
+import { NotificationProvider } from './hooks/Notification/notificationMessage.tsx';
+import ListLession from './components/Student/ListLession.tsx';
 function App() {
   return(
     <>

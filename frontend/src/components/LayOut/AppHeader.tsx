@@ -1,8 +1,8 @@
-import { BellOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons"
+import { BellOutlined, CheckOutlined, CloseOutlined, DeleteOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons"
 import { Avatar, Badge, Dropdown, Layout, Menu, Tooltip } from "antd"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../../hooks/ThemeContext";
-import { useNotification } from "../../hooks/notificationMessage";
+import { useNotification } from "../../hooks/Notification/notificationMessage";
 
 
 
@@ -12,7 +12,7 @@ interface HeaderProps{
 }
 
 export function AppHeader({role,userName}:HeaderProps){
-    const { notifications, unreadCount, clearNotifications } = useNotification();
+    const { notifications, unreadCount, clearNotifications,handleRead,handleDeleteOneNotifiction, markAllNotification } = useNotification();
     const navigate = useNavigate();
     const {clearAuth} =  useAuth();
     
@@ -43,6 +43,7 @@ const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:str
         },
     ];
 
+
     const menu = [
         ...(notifications.length === 0 ? [
             {
@@ -52,14 +53,81 @@ const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:str
         ] : notifications.map((n,index)=>({
             key:n.id ?? index.toString(),
             label: (
-                <div><strong>{n.senderName} : </strong>{n.message}</div>
+                <div 
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 16px",
+                        position: "relative",
+                        cursor: "pointer",
+                    }}
+                >
+                    <div 
+                    onClick={()=>handleRead(n.id ?? index.toString())} 
+                     style={{ flex: 1, zIndex: 1 }}
+                    >
+                        {!n.isRead && (
+                            <div style={{
+                                position:"absolute",
+                                inset:0,
+                                backgroundColor: "rgba(53, 64, 214, 0.2)",
+                                borderRadius: 4,
+                                pointerEvents: "none",
+                                }}
+                            />
+                            )}
+                        <div style={{ position: "relative" }}><strong>{n.senderName} : </strong>{n.message} </div> 
+                        </div>
+                        <CloseOutlined
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteOneNotifiction(n.id ?? index.toString());
+                            }}
+                            style={{
+                                marginLeft: 8,
+                                color:"red",
+                                opacity:0,
+                                transition:"opacity 0.2s",
+                            }}
+                            className="delete-icon"
+                        />
+                        <style>
+                            {`
+                            .ant-dropdown-menu-item:hover .delete-icon {
+                                opacity: 1 !important;
+                            }
+                            `}
+                        </style>
+                    </div>
             ),
         }))),
         {type:"divider" as const},
         {
-            key:"clear",
-            label:"Xóa tất cả",
-            onClick:clearNotifications,
+            key:"=actions",
+            label:(
+                <div 
+                    style={{
+                        display:"flex",
+                        justifyContent:"space-between",
+                        alignItems:"center",
+                        width:"auto"
+                    }}
+                >
+                    <span 
+                        onClick={clearNotifications}
+                        style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                        <DeleteOutlined /> Xóa tất cả
+                    </span>
+
+                    <span 
+                        onClick={markAllNotification}
+                        style={{ color: "#1677ff", cursor: "pointer", fontSize: 13 }}>
+                        <CheckOutlined/>Đánh dấu đã đọc
+                    </span>
+
+                </div>
+            ),
         },
     ];
 
@@ -80,23 +148,28 @@ const currentKey = menuConfig[role].find((item)=>location.pathname.startsWith(it
             style={{ flex: 1, minWidth: 0 }}
             />
             {/* Icon chuông thông báo */}
-            <Dropdown menu={{items:menu}} trigger={["click"]}>
-                <Badge count={unreadCount} size="small" offset={[0,6]}>
+            <Dropdown menu={{items:menu}} trigger={["click"]} placement="bottomRight" arrow>
+                <Badge count={unreadCount} size="small" offset={[-6,0]}>
                 <BellOutlined
-                    style={{ fontSize: 20, color: "#fff", marginRight: 20 }}
+                    style={{ fontSize: 20, color: "#fff", marginRight: 20, cursor: "pointer"}}
                 />
                 </Badge>
             </Dropdown>
 
-            <Dropdown menu={{ items: avatarMenu }} placement="bottomRight" trigger={["click"]} arrow>
-                <Tooltip title={userName}>
+            <Tooltip title={userName} placement="top">
+                <Dropdown
+                    menu={{ items: avatarMenu }}
+                    placement="bottomRight"
+                    trigger={["click"]}
+                    arrow
+                >
                     <Avatar
                     size="large"
                     icon={<UserOutlined />}
                     style={{ cursor: "pointer" }}
                     />
-                </Tooltip>
-            </Dropdown>
+                </Dropdown>
+            </Tooltip>
         </Layout.Header>
         </>
     )

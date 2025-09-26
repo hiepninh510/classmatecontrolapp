@@ -3,14 +3,9 @@ import { Card, Input, Button, Avatar } from "antd";
 import { EditOutlined, SaveOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
-import {useOpenNotification} from '../../hooks/notification.tsx'
+import {useOpenNotification} from '../../hooks/Notification/notification.tsx'
+import type { Profile } from "../../models/locationInterface.tsx";
 
-interface Profile{
-    phoneNumber:string,
-    name:string,
-    email:string,
-    avatar:string
-}
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile>({
   name: "",

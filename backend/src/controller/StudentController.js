@@ -66,26 +66,27 @@ export async function addStudent(req,res) {
 export async function assignLesson(req,res){
     try {
         // console.log(req.body);
-        let {phoneNumber,title,description,phoneInstructor} = req.body;
+        let {phoneNumber,description,subjectId,phoneInstructor} = req.body;
         phoneInstructor = normalPhoneNumber(phoneInstructor);
-        // console.log(phoneInstructor);
-        if(!title){
-            return res.status(400).json({success:false,message:'Title is requied!'});
-        }
+        // console.log(phoneNumber);
+        // if(!title){
+        //     return res.status(400).json({success:false,message:'Title is requied!'});
+        // }
         const studentQuery = await db.collection('students').where('phoneNumber','==',phoneNumber).get();
         const  instructorQuery = await db.collection('users').where('phoneNumber','==',phoneInstructor).get();
         if(studentQuery.empty || instructorQuery.empty){
             return res.status(400).json({seccess:false,message:'Student or Instructor not found'});
         };
         const lessionsPresent = studentQuery.docs[0].data().lessions || [];
+        // console.log(lessionsPresent)
         const instructor = instructorQuery.docs[0].id;
         const newLession = {
             id:`lession_${Date.now()}`,
-            title,
             description,
             createAt: new Date(),
             done:false,
-            instructor
+            instructor,
+            subjectId
         }
         lessionsPresent.push(newLession);
         await studentQuery.docs[0].ref.update({'lessions':lessionsPresent});
@@ -209,9 +210,12 @@ export async function getMyLession(req,res) {
         if (!lesson.instructor) return { ...lesson, instructorName: null };
         const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
         const instructorName = instructorSnap.exists ? instructorSnap.data().name : null;
+        const subjectSnap = await db.collection("subjects").doc(lesson.subjectId).get();
+        const title = subjectSnap.exists? subjectSnap.data().name : null
         return {
           ...lesson,
           instructorName,
+          title
         };
       })
     );
@@ -434,3 +438,5 @@ export async function finishLession(req,res){
          return res.status(500).json({ success: false, message: "Server error" });
     }
 }
+
+

@@ -6,7 +6,7 @@ import type { LocationState } from '../../models/locationInterface.tsx';
 import { useLocation } from 'react-router-dom';
 import { useAuthRole } from '../../hooks/useAuth.tsx';
 import {useAuth} from '../../hooks/ThemeContext.tsx'
-import {useOpenNotification} from '../../hooks/notification.tsx';
+import {useOpenNotification} from '../../hooks/Notification/notification.tsx';
 
 
 export default function ValidateAccessCode(){

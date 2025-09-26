@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import socket from "../components/ChatSocket/socket"
-import { useAuth } from "./ThemeContext"
+import socket from "../../components/ChatSocket/socket"
+import { useAuth } from "../ThemeContext"
 import axios from "axios"
 
 type Notifications = {
@@ -13,12 +13,16 @@ type Notifications = {
     referenceId:string | null,
     isRead:boolean,
     creatAt: Date,
-    updateAt:Date
+    updateAt:Date,
+    isDelete:boolean
 }
 
 type NotificationContextType = {
     notifications:Notifications[],
     unreadCount:number,
+    handleRead:(id:string)=>Promise<void>,
+    handleDeleteOneNotifiction:(id:string)=>Promise<void>,
+    markAllNotification:()=>Promise<void>,
     clearNotifications:()=>void
 }
 
@@ -58,16 +62,59 @@ export function NotificationProvider ({children}:{children:ReactNode}){
 
     useEffect(()=>{
         fetchNotifications()
-    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[])
+
+    const handleDeleteOneNotifiction = async (id:string)=>{
+        try {
+            if(id){
+                const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/notification/deleteOneNotification`,{params:{id}});
+                if(res.data.success) {
+                setNotification(prev => prev.filter(n => n.id !== id));
+            }
+        }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleRead = async (id:string) =>{
+        try {
+            if(id){
+                const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification`,{id});
+                if(res.data.success) {
+                setNotification(prev=> prev.map(n=>n.id === id ? {...n,isRead:true} : n));
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const markAllNotification = async () =>{
+        try {
+            const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification/readAllNotifications`,{id});
+            if(res.data.success) {
+                setNotification((prev) => prev.map((n) =>( {...n,isRead:true})))
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 
     const clearNotifications = () => setNotification([]);
+    const unreadCount = notifications.filter(item => !item.isRead).length;
 
     return (
         <>
             <NotificationContext.Provider value={
                 {
                     notifications, 
-                    unreadCount: notifications.length, 
+                    unreadCount,
+                    handleRead,
+                    handleDeleteOneNotifiction,
+                    markAllNotification,
                     clearNotifications 
                 }
             }

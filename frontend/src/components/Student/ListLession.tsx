@@ -1,26 +1,21 @@
-import { Table } from 'antd';
+import { Input, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Checkbox } from 'antd';
+import type { SearchProps } from 'antd/es/input';
 import axios from 'axios';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-interface Lession {
-  id: string;
-  title: string;
-  description?: string;
-  instructor: string;
-  instructorName:string;
-  createAt: Date;
-  done:boolean
-}
+import type { Lession } from '../../models/locationInterface';
 
 
 export default function ListLession(){
     const [laoding,setLoading] = useState(false);
     const [lesions,setLessions] = useState<Lession[]>([]);
+    const [filteredLessions, setFilteredLessions] = useState<Lession[]>([])
+    const [searchText,setSearchText] = useState<string>("");
     const navigate = useNavigate();
+    const { Search } = Input;
 
 
     const handleCheck = async (id:string,checked:boolean)=>{
@@ -83,32 +78,53 @@ const columns: TableProps<Lession>['columns'] = [
   },
 ];
 
-  useEffect(() => {
-    const fetchLessons = async () => {
+const onSearch: SearchProps["onSearch"] = (value)=>{
+  setSearchText(value);
+  const lower = value.toLowerCase();
+  const filtered = lesions.filter((item) => 
+    item.title.toLowerCase().includes(lower) ||
+    item.description?.toLowerCase().includes(lower) ||
+    item.instructorName.toLowerCase().includes(lower)
+  )
+
+  setFilteredLessions(filtered);
+}
+
+  useEffect(()=>{
+    const fetchLessons = async ()=>{
       try {
         setLoading(true);
         const myPhone = localStorage.getItem("phoneNumber");
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/myLessions?phone=${myPhone}`); 
-        // console.log(res.data.myLessions)
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/myLessions?phone=${myPhone}`);
         setLessions(res.data.myLessions);
+        setFilteredLessions(res.data.myLessions);
+        
       } catch (error) {
         console.error("Lỗi khi fetch lessons:", error);
-      } finally {
+      } finally{
         setLoading(false);
       }
-    };
-
+    }
     fetchLessons();
-  }, []);
+  },[])
 
 
     return(
         <>
-            <Table<Lession> 
+          <Search
+            placeholder="Tìm kiếm môn học, chi tiết hoặc giảng viên..."
+            enterButton = "Tìm kiếm"
+            allowClear
+            size="middle"
+            value={searchText}
+            style={{ marginBottom: 16, width: 400 }}
+            onChange={(e) =>onSearch(e.target.value)}
+          />
+          <Table<Lession> 
             loading={laoding}
             rowKey='id'
             columns={columns} 
-            dataSource={Array.isArray(lesions) ? lesions : []} />
+            dataSource={Array.isArray(filteredLessions) ? filteredLessions : []} />
         </>
     )
 }
