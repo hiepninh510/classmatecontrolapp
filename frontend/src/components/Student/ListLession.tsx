@@ -20,7 +20,7 @@ export default function ListLession(){
 
     const handleCheck = async (id:string,checked:boolean)=>{
       // console.log("cjecked",checked);
-        // setLessions((prev)=>prev.map((item)=>item.id===id?{...item,done:checked}:item));
+        setLessions((prev)=>prev.map((item)=>item.id===id?{...item,done:checked}:item));
         try {
           const phoneNumber = localStorage.getItem('phoneNumber');
           const updateDone = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/student/finishLession`,{id,checked,phoneNumber});

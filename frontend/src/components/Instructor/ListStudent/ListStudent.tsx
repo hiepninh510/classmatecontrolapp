@@ -76,7 +76,7 @@ export default function ListStudent(){
     const fetchStudent = async () => {
       try {
         setLoading(true);
-        const res = await studentAPI.getAll();
+        const res = await studentAPI.getAll(id as string);
         setStudent(res.data.student);
         setFilteredStudent(res.data.student);
       } catch (error) {
