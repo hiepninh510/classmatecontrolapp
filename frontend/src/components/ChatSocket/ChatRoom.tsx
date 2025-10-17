@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../../hooks/ThemeContext";
-import axios from "axios";
+import axios from "../../api/api";
 import socket from "./socket";
 import ChatBox from "./ChatBox";
 
@@ -109,7 +109,7 @@ export function ChatRooms({idUser}:IdUserProp){
     
             <div className="flex-1 overflow-y-auto bg-gray-50">
               {activeRoom ? (
-                <ChatBox roomId={activeRoom} idUser={userId as string}  />
+                <ChatBox roomId={activeRoom} idReceiver={userId as string}  />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-400">
                   <p>👋 Chọn một phòng chat để bắt đầu trò chuyện</p>

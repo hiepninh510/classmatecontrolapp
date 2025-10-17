@@ -1,3 +1,8 @@
+import jwt from "jsonwebtoken";
+// import fetch from "node-fetch";
+
+import {db} from '../config/firebase.js';
+
 export function validatePhoneNumber(req,res,next){
     try {
         
@@ -66,4 +71,91 @@ export function normalPhoneNumber(phoneNumber){
 
 export function generateAccessCode(){
     return Math.floor(100000+Math.random() * 900000).toString();
+}
+
+export function authenticate(req,res,next){
+    try {
+        // console.log("hello");
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(' ')[1];
+        if(!token) return res.status(400).json({message:"Lỗi"})
+        jwt.verify(token,process.env.JWT_SECRET,(error,user)=>{
+            if(error) return res.status(403).json({message:"Token không hợp lệ!"});
+            req.user = user;
+            next();
+        })
+    } catch (error) {
+        // return res.status(500).json({ message: error.message });
+    }
+}
+
+export function authorize(allowedRoles) {
+  return (req, res, next) => {
+    // console.log(req.user.role)
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.sendStatus(403).json({success:false,message:"Bạn không có quyền truy cập"}); // không có quyền
+    }
+    next();
+  };
+}
+
+export async function verifyRecaptcha(req, res, next) {
+     try {
+        const token = req.body.recaptchaToken;
+        if (!token) return res.status(400).json({ message: "Missing captcha token" });
+
+        const secret = process.env.RECAPTCHA_SECRET_KEY; // từ .env
+        if (!secret) return res.status(500).json({ message: "Server chưa cấu hình RECAPTCHA_SECRET_KEY" });
+
+        const params = new URLSearchParams();
+        params.append("secret", secret);
+        params.append("response", token);
+
+        const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
+        });
+        const data = await response.json();
+        if (!data.success) {
+            return res.status(400).json({ message: "Captcha không hợp lệ", errors: data["error-codes"] });
+        }
+
+        next();
+    } catch (error) {
+        console.error("Lỗi verify reCAPTCHA:", error);
+        return res.status(500).json({ message: "Error verifying captcha" });
+    }
+}
+
+
+export async function convertCodeID(req,res,next) {
+    try {
+        const {code} = req.params;
+        const instructorRef = await db.collection("users")
+        .where("role",'==','instructor')
+        .where("code","==",code)
+        .limit(1)
+        .get();
+
+        if(instructorRef.empty) return res.status(200).json({success:false,message:"Không tìm thấy giảng viên"});
+        req.params.id = instructorRef.docs[0].id;
+        next();
+    } catch (error) {
+         return res.status(400).json({success:false,error});
+    }
+}
+
+// middleware/convertEmailToPhoneNumber.js
+export function convertEmailToPhoneNumber(req, res, next) {
+  try {
+    if (req.body?.email && !req.body?.phoneNumber) {
+      req.body.phoneNumber = req.body.email;
+      delete req.body.email; 
+    }
+    next();
+  } catch (error) {
+    console.error("convertEmailToPhoneNumber error:", error);
+    return res.status(500).json({ success: false, message: "Lỗi middleware chuyển đổi dữ liệu" });
+  }
 }

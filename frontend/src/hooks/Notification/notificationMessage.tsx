@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import socket from "../../components/ChatSocket/socket"
 import { useAuth } from "../ThemeContext"
-import axios from "axios"
+import axios from "../../api/api"
 
 type Notifications = {
     id:string,
@@ -62,6 +62,7 @@ export function NotificationProvider ({children}:{children:ReactNode}){
 
     useEffect(()=>{
         fetchNotifications()
+        console.log("notifications",notifications)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 

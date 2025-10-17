@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../../api/api";
 import { useEffect, useState } from "react";
 import socket from "./socket";
 import { useAuth } from "../../hooks/ThemeContext";
@@ -14,9 +14,9 @@ interface Message {
 
 interface ChatBoxProps {
   roomId: string;
-  idUser:string
+  idReceiver:string
 }
-export default function ChatBox({ roomId,idUser }: ChatBoxProps) {
+export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [senderId, setSenderId] = useState("");
@@ -55,10 +55,10 @@ export default function ChatBox({ roomId,idUser }: ChatBoxProps) {
   }, [roomId]);
 
   useEffect(()=>{
-    const fetchIdUser = async ()=>{
+    const fetchIdReceiver = async ()=>{
       const phone = localStorage.getItem('phoneNumber');
-      if(idUser){
-        setUserId(idUser);
+      if(idReceiver){
+        setUserId(idReceiver);
       }else {
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification/getIdUserToNotification`,{params:{
           role,
@@ -69,7 +69,7 @@ export default function ChatBox({ roomId,idUser }: ChatBoxProps) {
         if(res.data.success) setUserId(res.data.userId);
       }
     }
-    fetchIdUser()
+    fetchIdReceiver()
   })
 
   const handleSend = async () => {

@@ -16,15 +16,27 @@ export function AppHeader({role,userName}:HeaderProps){
     const navigate = useNavigate();
     const {clearAuth} =  useAuth();
     
-const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:string}[]> = {
+const menuConfig:Record<"admin"|"student"|"instructor",{key:string,label:string,path:string}[]> = {
+    admin:[
+        {key:'1',label:"Danh sách sinh viên",path:"/admin/dashboardStudent"},
+        {key:'2',label:"Danh sách giảng viên",path:"/admin/dashboardInstructor"},
+        {key:'3',label:"Danh sách lớp học",path:"/admin/dashboardClasses"},
+        {key:'4',label:"Danh sách phòng học",path:"/admin/dashboardRooms"},
+        {key:'5',label:"Lịch Phân Công",path:"/admin/dashboardSchedules"},
+        {key:'6',label:"Danh sách khoa",path:"/admin/dashboardFaculties"},
+    ],
     student:[
         {key:'1',label:"Danh sách bài học",path:"/student/dashboard"},
         {key:'2',label:"Message",path:"/student/messages"},
-        {key:'3', label:"Tài khoản",path:"/student/profile"}
+        {key:'3',label:"Kết quả",path:'/student/result'},
+        {key:'4', label:"Lịch Học",path:'/student/schedule'},
+        {key:'5', label:"Tài khoản",path:"/student/profile"}
     ],
     instructor:[
         {key:'1',label:"Danh sách sinh viên",path:"/instructor/dashboard"},
-        {key:'2',label:"Message",path:"/instructor/messages"}
+        {key:'2',label:"Message",path:"/instructor/messages"},
+        {key:'3', label:"Nhập điểm",path:'/instructor/score'},
+        {key:'4', label:"Lịch Dạy",path:'/instructor/schedule'}
     ]
 
 }
@@ -35,7 +47,6 @@ const menuConfig:Record<"student"|"instructor",{key:string,label:string,path:str
         label: "Log out",
         icon: <LogoutOutlined />,
         onClick: () => {
-            console.log("User logged out");
             localStorage.removeItem('phoneNumber');
             clearAuth();
             navigate("/");

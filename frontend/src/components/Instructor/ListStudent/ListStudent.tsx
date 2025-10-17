@@ -7,11 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/ThemeContext.tsx';
 import Search, { type SearchProps } from 'antd/es/input/Search';
 import { studentAPI } from './StudentAPI.ts';
-import { StudentFormModal } from './Modal/StudentFromModal.tsx';
+import { StudentFormModal } from '../../../admin/modal/StudentFromModal.tsx';
 import { AssignLessionFormModal } from './Modal/AssignLesion.tsx';
 import { AssignLessinClassFormModal } from './Modal/AssignLessionForClas.tsx';
-import { DeleletStudentModal } from './Modal/DeleteModal.tsx';
-import type { AssignLessionForClass, Notifi, Student, Subject } from '../../../models/locationInterface.tsx';
+import { DeleletStudentModal } from '../../../admin/modal/DeleteModal.tsx';
+import { type AssignLessionForClass, type Notifi, type Student, type Subject } from '../../../models/locationInterface.tsx';
 import { notificationService } from '../../../hooks/Notification/notificationService.ts';
 
 
@@ -33,7 +33,7 @@ export default function ListStudent(){
     const [searchText,setSearchText] = useState<string>("");
     const [subjects,setSubjects] = useState<Subject[]>([]);
     const [assignForClass,setassignForClass] = useState<AssignLessionForClass[]>([]);
-
+    const [classFilters,setClassFillter] = useState< {text: string; value: string}[]>([]);
 
     const columns: TableProps<Student>['columns'] = [
       {
@@ -51,6 +51,12 @@ export default function ListStudent(){
         title: 'Email',
         dataIndex: 'email',
         key: 'email',
+      },
+      {
+        title:"Lớp",
+        dataIndex:"classRoom",
+        filters:classFilters,
+        onFilter:(value,record) => record.classRoom === value,
       },
       {
         title: 'Chức Năng',
@@ -79,6 +85,13 @@ export default function ListStudent(){
         const res = await studentAPI.getAll(id as string);
         setStudent(res.data.student);
         setFilteredStudent(res.data.student);
+
+        const fillterClass = Array.from<string>(new Set(res.data.student.map((s: { classRoom: string; })=>s.classRoom)))
+        .map(c=>({
+          text:c,
+          value:c
+        }));
+        setClassFillter(fillterClass);
       } catch (error) {
         console.error("Lỗi khi fetch lessons:", error);
       } finally {
@@ -87,7 +100,7 @@ export default function ListStudent(){
     };
 
     fetchStudent();
-  }, []);
+  }, [id]);
 
   const onOpenChat = async (studentId: string) => {
   try {
@@ -139,7 +152,7 @@ export default function ListStudent(){
 
   const openAssignModal = async (student: Student) => {
     if(id){
-      const res = await studentAPI.getSubjects(id);
+      const res = await studentAPI.getAssingedSubject(id);
       //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getSubjects/${id}`);
       if(res.data.success){
         setSubjects(res.data.dataSubjects);
@@ -199,7 +212,7 @@ export default function ListStudent(){
         setSubjects( res.data.dataSubjects);
       }
       
-      const resClass = await studentAPI.getAllClass(id);
+      const resClass = await studentAPI.getAssingedSubject(id);
       //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getAllClass/${id}`);
       if(res.data.success) {
         setassignForClass(resClass.data.dataClass);

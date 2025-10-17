@@ -32,11 +32,12 @@ export default function ValidateAccessCode(){
         const res = await api.post(`${import.meta.env.VITE_BACKEND_URL}/validateAccessCode`,values)
         if(res.data.success){
           localStorage.setItem("phoneNumber",res.data.phoneNumber);
+          localStorage.setItem("token",res.data.token);
             openNotification('success','Xác thực thành công');
+            console.log("res.data.id",res.data.id)
             setAuth(res.data.typeUser, res.data.userName,res.data.id);
             setTimeout(()=>{
                 validateAccessCode(res.data.typeUser);
-                // return <AppDashBoard role={res.data.typeUser}/>
             },1000)
         } else {
             openNotification('error','Mã xác thực không tồn tại')
@@ -44,7 +45,6 @@ export default function ValidateAccessCode(){
         } catch (error) {
             console.log(error);
         }
-        
     }
     return(
         <>

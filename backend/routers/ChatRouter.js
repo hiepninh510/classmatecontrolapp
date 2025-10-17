@@ -1,9 +1,26 @@
 import { Router } from "express";
-import * as ChatsSocketIO from '../src/chatSocketio/chats.js'
+import * as ChatsSocketIO from '../src/chatSocketio/chats.js';
+import * as FormatController from "../src/controller/formatController.js";
 
 const router = Router();
-router.post('/messages',ChatsSocketIO.openChatRoom)
-router.post('/messagesStudent',ChatsSocketIO.openChatRoomOfStudent)
-router.get('/messages/:idRoom/:phoneNumber',ChatsSocketIO.getMessagesOfRoom);
-router.post('/',ChatsSocketIO.chatWithStudent);
+router.post('/messages',
+    FormatController.authenticate,
+    FormatController.authorize(["student","instructor","admin"]),
+    ChatsSocketIO.openChatRoom)
+router.post('/messagesStudent',
+    
+    FormatController.authenticate,
+    FormatController.authorize(["student","instructor","admin"]),
+    ChatsSocketIO.openChatRoomOfStudent)
+
+router.get('/messages/:idRoom/:phoneNumber',
+    FormatController.authenticate,
+    FormatController.authorize(["instructor","student","admin"]),
+    ChatsSocketIO.getMessagesOfRoom);
+
+router.post('/',
+    FormatController.authenticate,
+    FormatController.authorize(["student","instructor","admin"]),
+    ChatsSocketIO.chatWithStudent);
+
 export default router;

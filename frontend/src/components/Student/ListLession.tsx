@@ -2,7 +2,7 @@ import { Input, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Checkbox } from 'antd';
 import type { SearchProps } from 'antd/es/input';
-import axios from 'axios';
+import axios from '../../api/api';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -2,8 +2,8 @@ import express from 'express';
 import route from '../backend/routers/index.js';
 import path from 'path';
 import cors from 'cors';   
-import { Server } from 'socket.io';
-import { v4 as uuidv4 } from "uuid";
+// import { Server } from 'socket.io';
+// import { v4 as uuidv4 } from "uuid";
 // import http from "http";
 import https from "https";
 import fs from "fs";
@@ -18,57 +18,64 @@ const options = {
   cert: fs.readFileSync("./cert/cert.pem"),
 };
 
-const server = https.createServer(options, app);
-export const io = new Server(server, {
-  cors: {
-    origin: "https://localhost:5173",
-    methods: ["GET", "POST","PUT","DELETE"],
-  },
-});
+// const server = https.createServer(options,app);
+// export const io = new Server(server, {
+//   cors: {
+//     origin: "https://localhost:5173",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Authorization"],
+//     credentials: true,
+//   },
+// });
 
-io.on("connection", (socket) => {
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
-    console.log(`${socket.id} joined room ${roomId}`);
-  });
+// io.on("connection", (socket) => {
+//   socket.on("joinRoom", (roomId) => {
+//     socket.join(roomId);
+//     console.log(`${socket.id} joined room ${roomId}`);
+//   });
 
-  socket.on("joinNoticationRoom",(userId) =>{
-    socket.join(userId);
-    console.log(`${socket.id} joined notification room: ${userId}`);
-  })
+//   socket.on("joinNoticationRoom",(userId) =>{
+//     socket.join(userId);
+//     // console.log(`${socket.id} joined notification room: ${userId}`);
+//   })
 
-  socket.on("disconnect", () => console.log("User disconnected"));
+//   socket.on("disconnect", () => console.log("User disconnected"));
 
-  socket.on("sendMessage", async ({ roomId, senderId, text }) => {
-    try {
-      const messageId = uuidv4();
-      const msg = {
-        id: messageId,
-        senderId,
-        text,
-        createdAt: new Date(),
-      };
+//   socket.on("sendMessage", async ({ roomId, senderId, text }) => {
+//     try {
+//       const messageId = uuidv4();
+//       const msg = {
+//         id: messageId,
+//         senderId,
+//         text,
+//         createdAt: new Date(),
+//       };
 
-      await db.collection("chats").doc(roomId).update({
-        messages: FieldValue.arrayUnion(msg),
-      });
+//       await db.collection("chats").doc(roomId).update({
+//         messages: FieldValue.arrayUnion(msg),
+//       });
 
-      io.to(roomId).emit("newMessage", {
-        id: messageId,
-        senderId,
-        text,
-        createdAt: new Date().toISOString(),
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  });
+//       io.to(roomId).emit("newMessage", {
+//         id: messageId,
+//         senderId,
+//         text,
+//         createdAt: new Date().toISOString(),
+//       });
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   });
 
 
   
-});
+// });
 
-app.use(cors());
+app.use(cors({
+  origin: "https://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -78,6 +85,8 @@ app.use("/src", express.static(path.join(__dirname, "src")));
 
 route(app);
 
-server.listen(PORT, () => {
-  console.log(`HTTPS server running on https://localhost:${PORT}`);
-});
+export default app;
+
+// server.listen(PORT, () => {
+//   console.log(`HTTPS server running on https://localhost:${PORT}`);
+

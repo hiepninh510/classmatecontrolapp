@@ -1,17 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import socket from "../components/ChatSocket/socket";
 export const useAuthRole = () => {
       const navigate = useNavigate();
       
       const validateAccessCode = async (typeUser:string) =>{
         try {
+          socket.emit("joinRoomAdmin",(localStorage.getItem("phoneNumber"),typeUser));
             if(typeUser === "student"){
               sessionStorage.setItem("role",typeUser);
                 navigate("/student/dashboard");
             }
-            else{
-              typeUser = "instructor";
+            else if(typeUser === 'instructor'){
               sessionStorage.setItem("role",typeUser);
-                navigate("/instructor/dashboard")
+                navigate("/instructor/dashboard");
+            } else if(typeUser === 'admin'){
+              sessionStorage.setItem("role",typeUser);
+              navigate("/admin/dashboardStudent");
             } ;
                 
                 

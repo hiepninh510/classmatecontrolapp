@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Card, Input, Button, Avatar } from "antd";
 import { EditOutlined, SaveOutlined } from "@ant-design/icons";
-import axios from "axios";
+import axios from "../../api/api.tsx";
 import { MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import {useOpenNotification} from '../../hooks/Notification/notification.tsx'
 import type { Profile } from "../../models/locationInterface.tsx";
@@ -29,7 +31,7 @@ export default function ProfilePage() {
   useEffect(()=>{
     const fetchProfile = async()=>{
         try {
-            console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
+            // console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
             const phoneNumber = localStorage.getItem("phoneNumber");
             const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/${phoneNumber}`);
             const formatProfile = {
@@ -39,8 +41,9 @@ export default function ProfilePage() {
                 avatar: "https://i.pravatar.cc/150?img=3"
             }
             setProfile(formatProfile);
-        } catch (error) {
+        } catch (error:any) {
              console.error("Lỗi khi fetch lessons:", error);
+             openNotification("error", "Bạn không có quyền");
         }
     }
     fetchProfile();

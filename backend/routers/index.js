@@ -3,6 +3,7 @@ import StudentRouter from './StudentRouter.js';
 import ChatSocketIO from './ChatRouter.js';
 import InstructorRouter from './InstrucotrRouter.js';
 import NotificationRouter from './NotificationRouter.js';
+import AdminRouter from './AdminRouter.js'
 
 function route(app){
 
@@ -10,6 +11,7 @@ function route(app){
     app.use('/chats',ChatSocketIO);
     app.use('/instructor',InstructorRouter);
     app.use('/notification',NotificationRouter);
+    app.use('/admin',AdminRouter);
     app.use('/',AuthenticationRouters);
 
 }

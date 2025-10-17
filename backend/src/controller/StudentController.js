@@ -1,4 +1,4 @@
-import {db} from '../config/firebase.js'
+import {admin, db} from '../config/firebase.js'
 import { formatPhoneNumber,normalPhoneNumber } from './formatController.js';
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
@@ -6,12 +6,14 @@ import bcrypt from "bcrypt";
 
 export async function addStudent(req,res) {
     try {
-        const {name,phoneNumber,email} = req.body
-        // console.log({name,phoneNumber,email});
+        const {name,phoneNumber,email,code,classId,className} = req.body
         if(!name || !email){
             return res.status(400).json({success:false,message:'Missing fields'})
         }
-        const isStudentExisting = await db.collection('students').where('phoneNumber','==',phoneNumber).get();
+        const isStudentExisting = await db.collection('students')
+        .where('phoneNumber','==',phoneNumber)
+        .where('email','==',email)
+        .get();
 
         if(!isStudentExisting.empty){
             return res.status(400).json({success:false,message:'Student already exists'});
@@ -21,9 +23,11 @@ export async function addStudent(req,res) {
             {expiresIn: "24h"}
         );
         await db.collection('users').add({
+            code,
             name,
             phoneNumber,
             email,
+            password,
             role:'student',
             deleted:false,
             createAt:new Date()
@@ -50,7 +54,9 @@ export async function addStudent(req,res) {
             from:process.env.EMAIL_USER,
             to: email,
             subject:"Setup Your Student Account",
-            html:`<p>Hello ${name},</p>
+            html:`<p>Hello ${name}</p>
+                <p>Mã Số Sinh Viên của bạn là :${code}</p>
+                <p>Lớp: ${className}</p>
                 <p>Your instructor has added you to the classroom system.</p>
                 <p>Please click the link below to set up your account:</p>
                 <a href="${setupLink}">${setupLink}</a>
@@ -65,20 +71,14 @@ export async function addStudent(req,res) {
 
 export async function assignLesson(req,res){
     try {
-        // console.log(req.body);
         let {phoneNumber,description,subjectId,phoneInstructor} = req.body;
         phoneInstructor = normalPhoneNumber(phoneInstructor);
-        // console.log(phoneNumber);
-        // if(!title){
-        //     return res.status(400).json({success:false,message:'Title is requied!'});
-        // }
         const studentQuery = await db.collection('students').where('phoneNumber','==',phoneNumber).get();
         const  instructorQuery = await db.collection('users').where('phoneNumber','==',phoneInstructor).get();
         if(studentQuery.empty || instructorQuery.empty){
             return res.status(400).json({seccess:false,message:'Student or Instructor not found'});
         };
         const lessionsPresent = studentQuery.docs[0].data().lessions || [];
-        // console.log(lessionsPresent)
         const instructor = instructorQuery.docs[0].id;
         const newLession = {
             id:`lession_${Date.now()}`,
@@ -98,17 +98,37 @@ export async function assignLesson(req,res){
 
 export async function getStudentList(req,res) {
     try {
-        const StudentList = await db.collection('students').where('deleted','==',false).get();
-        const student = [];
-        StudentList.forEach(item =>{
-            const data = item.data();
-            student.push({
-                id:item.id,
-                name:data.name,
-                phoneNumber:formatPhoneNumber(data.phoneNumber),
-                email:data.email
-            });
-        })
+        const {id} = req.params;
+        if(!id) return res.status(400).json({success:false,message:"Id not exist!!!"});
+        const instructorSnap = await db.collection("users").doc(id).get();
+        if(!instructorSnap.exists) return res.status(404).json({success:false,message:"Instructor not found!!!"});
+
+        const classId = instructorSnap.data().classId;
+        // console.log("hello",classId);
+
+        if(!Array.isArray(classId) || classId.length === 0) return res.status(200).json({ student: [] });
+        
+
+        const listClassSnap = await db.collection("class")
+        .where(admin.firestore.FieldPath.documentId(),'in',classId.slice(0, 10))
+        .get()
+
+        const classMap = new Map(listClassSnap.docs.map((doc) => [doc.id,doc.data().name]));
+
+        const StudentList = await db.collection('students')
+        .where('deleted','==',false)
+        .where("classId","in",classId.slice(0,10))
+        .get();
+        const student = StudentList.docs.map((doc) => {
+        const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name,
+                phoneNumber: formatPhoneNumber(data.phoneNumber),
+                email: data.email,
+                classRoom: classMap.get(data.classId) || null,
+            };
+    });
         return res.status(200).json({student});
     } catch (error) {
         return res.status(500).json({success:false,error:error.message});
@@ -236,7 +256,7 @@ export async function markLessionDone(req,res) {
         const myLessions = studentQuery.docs[0].data().lessions ||[];
 
         const lessionIndex = myLessions.findIndex(item => item.id === idLession);
-        console.log(lessionIndex)
+        // console.log(lessionIndex)
         if(lessionIndex ===-1) return res.status(404).json({success:false,message:"Lession not found"});
         myLessions[lessionIndex].done = true;
         await studentQuery.docs[0].ref.update({lessions:myLessions});
@@ -275,6 +295,7 @@ export async function loginEmail(req,res) {
        if(!email) return res.status(400).json({success:false, message:'Email is required'});
        const accessCode = Math.floor(100000+Math.random() * 900000).toString();
        const accessCodeQuery = await db.collection('users').where('email','==',email).get();
+       if(accessCodeQuery.empty) return res.status(404).json({ success: true, message: "Email không tồn tại" });
         await accessCodeQuery.docs[0].ref.update({
             accessCode,
             createdAt: new Date(),
@@ -364,11 +385,21 @@ export async function validateAccessCode(req,res) {
 export async function setUpAccount(req,res) {
     try {
         const {token,name,password} =req.body
-        console.log(req.body);
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
         const { email, phoneNumber } = decoded;
         const hashedPassword = await bcrypt.hash(password, 10);
+        const userSnap = await db.collection("users")
+        .where("email", "==", email)
+        .where("phoneNumber", "==", phoneNumber)
+        .limit(1)
+        .get();
+
+        if(userSnap.empty) return res.status(400).json({ success: false, error: "User not found" });
+
+        await userSnap.docs[0].ref.update({
+            password:hashedPassword
+        })
+
         const snapshot = await db.collection("students")
         .where("email", "==", email)
         .where("phoneNumber", "==", phoneNumber)
@@ -383,7 +414,6 @@ export async function setUpAccount(req,res) {
         await studentDoc.ref.update({
             name,
             phoneNumber,
-            password:hashedPassword,
             status:"active",
             token:"",
             deleted:false,
@@ -436,6 +466,97 @@ export async function finishLession(req,res){
         return res.status(200).json({success:true, updateLessionForUI })
     } catch (error) {
          return res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+export async function getMyScores(req,res) {
+    try {
+        // console.log(req.params)
+        const {id} = req.params;
+        if(!id) return res.status(400).json({success:false,message:"Student's ID is Undefined!!!"});
+
+        const studentRef = await db.collection("students").doc(id).get();
+        if(!studentRef.exists) return res.status(400).json({success:false,message:"Student dose not exists!!!"});
+
+        const classRef = await db.collection("class").doc(studentRef.data().classId).get();
+        if(!classRef.exists) return res.status(400).json({success:false,message:"Class donse not exists!!!"});
+
+        const facultySnap = await db.collection("facultys").doc(classRef.data().facultyId).get();
+        if(!facultySnap.exists) return res.status(400).json({success:false,message:"Faculty dose not exists!!!"});
+
+        const totalCredits = facultySnap.data().credits;
+
+        const scoreSnap = await db.collection("scores").where("studentId",'==',id).get();
+        if(scoreSnap.empty) return res.status(400).json({success:false,message:"Score not found"});
+        const score = scoreSnap.docs[0].data().score;
+        const filteredData = await Promise.all(
+            score.map(async(item)=>{
+                const subjectRef = await db.collection("subjects").doc(item.subjectId).get();
+                const phaseRef = await db.collection("phases").doc(item.phase).get();
+                if(subjectRef.exists && phaseRef.exists) {
+                    return {...item,subjectName:subjectRef.data().name,credits:subjectRef.data().credits,phaseName:phaseRef.data().name}
+                } else return null
+            })
+        )
+        const scoreData = filteredData.filter(Boolean);
+        let creditsIsPass = 0;
+        scoreData.forEach((s)=>{
+            if(s.total && s.pass) creditsIsPass += s.credits;
+        })
+        // const notCredits = totalCredits - creditsIsPass;
+        const credits = { creditsIsPass: creditsIsPass, totalCredits: totalCredits};
+        console.log(credits)
+
+        return res.status(200).json({success:true, scoreData,credits })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+export async function getMyShedules(req,res){
+    try {
+        const {id} =req.params;
+        if(!id) return res.status(400).json({success:false,message:"ID don't exists"});
+    
+        const studentRef = await db.collection("students").doc(id).get();
+        if(!studentRef.exists) return res.status(400).json({success:false,message:"studentRef don't exists"});
+    
+        const classRef = await db.collection("class").doc(studentRef.data().classId).get();
+        if(!classRef.exists) return res.status(400).json({success:false,message:"classRef don't exists"});
+    
+        const scheduleSnap = await db.collection("schedules").get();
+        if(scheduleSnap.empty) return res.status(400).json({success:false,message:"scheduleSnap don't exists"});
+
+
+        const flattenSchedule = scheduleSnap.docs.flatMap(doc => 
+            doc.data().schedule
+                .filter((s) => s.classId === classRef.id)
+                .map((s) => ({ ...s, id: doc.id }))
+        );
+
+        const schedules = await Promise.all(
+            flattenSchedule.map(async (sch) => {
+                const classSnap = await db.collection("class").doc(sch.classId).get();
+                const roomSnap = await db.collection("rooms").doc(sch.roomId).get();
+                const subjectSnap = await db.collection("subjects").doc(sch.subjectId).get();
+                const timeSnap = await db.collection("times").doc(sch.timeId).get();
+
+                if (!classSnap.exists || !roomSnap.exists || !subjectSnap.exists || !timeSnap.exists) return null;
+
+                return {
+                    ...sch,
+                    className: classSnap.data()?.name,
+                    roomName: roomSnap.data()?.name,
+                    subjectName: subjectSnap.data()?.name,
+                    timeFrame: timeSnap.data()?.timeFrame
+                };
+            })
+        );
+
+        const scheduleData = schedules.filter(Boolean);
+        return res.status(200).json({success:true,scheduleData});
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 }
 

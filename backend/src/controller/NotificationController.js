@@ -1,6 +1,23 @@
 import { db } from '../config/firebase.js';
 import {normalPhoneNumber, formatPhoneNumber } from './formatController.js';
-import {io} from "../../app.js"
+// import {io} from "../../app.js"
+import { getIO } from '../../socket/index.js';
+
+function createNotificationForAdmin({ type, userId, senderId, senderName, message }) {
+  const now = new Date().toISOString();
+
+  return {
+    type,           // "message" | "register" | "alert" ...
+    userId,         // id người nhận
+    senderId,       // id người gửi
+    senderName,     // tên người gửi
+    message,        // nội dung thông báo
+    isRead: false,  // mặc định chưa đọc
+    isDelete:false,
+    createdAt: now, // thời gian tạo
+    upDate: now,    // cập nhật lần đầu = thời gian tạo
+  };
+}
 
 export async function creatNotification(req,res){
     try {
@@ -26,10 +43,73 @@ export async function creatNotification(req,res){
             senderName,
         }
         const notificationDocRef = await db.collection("notifications").add(newNotification);
-
+        const io = getIO();
         io.to(notification.userId).emit("newNotification",{
             id:notificationDocRef.id,
             ...newNotification
+        });
+        return res.status(200).json({success:true,message:"Create notification is success"});
+    } catch (error) {
+        return res.status(500).json({success:false,error:error.message});
+    }
+}
+
+export async function notificationHello(role,phone) {
+    try {
+        if(!role && !phone) return null;
+        const userSnap = await db.collection('users')
+        .where("phoneNumber",'==',phone)
+        .where("role",'==',role)
+        .get();
+
+        if(userSnap.empty) return null;
+        const notificationOfUser = await db.collection("notifications")
+        .where("userId","==",userSnap.docs[0].id)
+        .get();
+
+        if(!notificationOfUser.empty) return false ;
+        const admin = await db.collection("users").where("role","==","admin").get();
+        const notification = createNotificationForAdmin({
+            type:"system",
+            userId:userSnap.docs[0].id,
+            senderId:admin.docs[0].id,
+            senderName:admin.docs[0].data().name,
+            message:"Xin chào!"
+        })
+        await db.collection("notifications").add(notification);
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+export async function createNotificationFromAdmin(req,res) {
+    try {
+        const { type,email, message } = req.body;
+        if (!email) {
+            throw new Error("Invalid notification data");
+        }
+        const receiverDoc = await db.collection("users").where("email","==",email).get();
+        const admin = await db.collection("users").where("role","==","admin").get();
+        if(admin.empty && receiverDoc.empty) throw new Error("Sender not found");
+    
+        const senderId = admin.docs[0].id;
+        const senderName = admin.docs[0].data().name;
+    
+        const notification = createNotificationForAdmin({
+            type,
+            userId:receiverDoc.docs[0].id,
+            senderId,
+            senderName,
+            message
+        })
+        const notificationDocRef = await db.collection("notifications").add(notification);
+        // Gửi socket event
+        const io = getIO();
+        io.to(notification.userId).emit("newNotification", {
+            id: notificationDocRef.id,
+            ...notification,
         });
         return res.status(200).json({success:true,message:"Create notification is success"});
     } catch (error) {
@@ -48,6 +128,10 @@ export async function getNotifications(req,res) {
                 dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
                 break;
             case "instructor":
+                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
+                break;
+            
+            case "admin":
                 dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
                 break;
             default:

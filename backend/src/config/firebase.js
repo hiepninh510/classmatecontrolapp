@@ -8,4 +8,4 @@ credential:admin.credential.cert(serviceAccountKey),
 
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
-export  {db,FieldValue};
+export  {db,FieldValue,admin};
