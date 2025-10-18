@@ -24,6 +24,7 @@ const menuConfig:Record<"admin"|"student"|"instructor",{key:string,label:string,
         {key:'4',label:"Danh sách phòng học",path:"/admin/dashboardRooms"},
         {key:'5',label:"Lịch Phân Công",path:"/admin/dashboardSchedules"},
         {key:'6',label:"Danh sách khoa",path:"/admin/dashboardFaculties"},
+        {key:'7',label:"Danh sách môn",path:"/admin/dashbordSubject"},
     ],
     student:[
         {key:'1',label:"Danh sách bài học",path:"/student/dashboard"},

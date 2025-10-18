@@ -148,5 +148,29 @@ router.delete('/deleteFaculty/:id',
     AdminController.deleteFaculty
 );
 
+router.get('/getSubjectForAdmin',
+    FormatController.authenticate,
+    FormatController.authorize(["admin"]),
+    AdminController.getSubjectForAdmin
+);
+
+router.post('/addSubject',
+    FormatController.authenticate,
+    FormatController.authorize(["admin"]),
+    AdminController.addSubject
+)
+
+router.put('/updateSubject/:id',
+    FormatController.authenticate,
+    FormatController.authorize(["admin"]),
+    AdminController.updateSubject
+)
+
+router.delete('/deleteSubject',
+    FormatController.authenticate,
+    FormatController.authorize(["admin"]),
+    AdminController.deleteSubject
+);
+
 
 export default router;

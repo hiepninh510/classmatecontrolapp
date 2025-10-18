@@ -23,7 +23,6 @@ export default function FacultyFormModal({
   const [form] = Form.useForm();
     const {instructors,fetchInstructors} = useAdminData();
 
-  // Khi mở modal, nếu có faculty thì fill dữ liệu, không thì reset
   useEffect(() => {
     fetchInstructors();
     if (faculty) form.setFieldsValue(faculty);
@@ -34,6 +33,7 @@ export default function FacultyFormModal({
     try {
       const values = await form.validateFields();
       onSave(values);
+      form.resetFields();
     } catch (err) {
       console.log("Validate error:", err);
     }

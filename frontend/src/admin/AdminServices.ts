@@ -21,23 +21,28 @@ export const adminAPI = {
     }),
 
     getFacultiesForAdmin:()=>axois.get(`${API}/admin/faculties`),
+    getSubjectForAdmin:()=>axois.get(`${API}/admin/getSubjectForAdmin`),
 
     updateInstructor:(id:string,data:any) => axois.put(`${API}/admin/updateInstructor/${id}`,data),
     updateRoomStatus:(id:string,active:boolean|undefined)=> axois.put(`${API}/admin/updateRoomStatus/${id}`,{active}),
     updateSchedule:(idS:string,data:any)=>axois.put(`${API}/admin/updateSchedule/${idS}`,data),
     updateFaculty:(id:string,data:any)=>axois.put(`${API}/admin/updateFaculty/${id}`,data),
+    updateSubject:(id:string,data:any)=> axois.put(`${API}/admin/updateSubject/${id}`,data),
 
     addInstructor:(data:any) => axois.post(`${API}/admin/createInstructor`,data),
     addClass:(data:any)=>axois.post(`${API}/admin/creatClass`,data),
     addRoom:(data:any) => axois.post(`${API}/admin/creatRoom`,data),
     addSchedule:(data:any) => axois.post(`${API}/admin/addSchedule`,data),
     addFaculty:(data:any) => axois.post(`${API}/admin/addFaculty`,data),
+    addSubject:(data:any) => axois.post(`${API}/admin/addSubject`,data),
 
 
     deleteInstructor:(id:string) => axois.delete(`${API}/admin/deleteInstructor/${id}`),
     deleteClass:(id:string) => axois.delete(`${API}/admin/deleteClass/${id}`),
     deleteSchedule:(id:string,data:any) => axois.delete(`${API}/admin/deleteSchedules/${id}`,data),
     deleteFaculty:(id:string) => axois.delete(`${API}/admin/deleteFaculty/${id}`),
+    deleteSubject:(id:string) => axois.delete(`${API}/admin/deleteSubject`,{params:{id}}),
+
 
 
 }

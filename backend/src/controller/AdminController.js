@@ -231,7 +231,8 @@ async function getEarliesPhase(){
 // Thêm instructor
 export async function createInstructor(req,res) {
     try {
-        const {name,phoneNumber,email,code,classes,subjects,faculty} = req.body
+        const {name,phoneNumber,email,code,classes,subjects,faculty} = req.body;
+        console.log("req.body",req.body);
         if(!name || !email || !code){
             return res.status(400).json({success:false,message:'Missing fields'})
         }
@@ -260,7 +261,7 @@ export async function createInstructor(req,res) {
             phoneNumber,
             email,
             deleted:false,
-            // facultyId:faculty,
+            facultyId:faculty,
             classId:classes,
             subjectId:subjects,
             role:'instructor',
@@ -915,4 +916,107 @@ export async function addphases(req,res) {
     }
 }
 
+async function countInstructor(id) {
+    try {
+        //const subjectRef = await db.collection("subjects").doc(id).get();
+        const instructorSnap = await db.collection("users")
+        .where("role",'==',"instructor")
+        .where("deleted",'==',false)
+        .where("subjectId", "array-contains", id)
+        .get();
 
+        const instructorNumber = instructorSnap.size; 
+
+        return instructorNumber;
+    } catch (error) {
+        return null
+    }
+}
+
+export async function getSubjectForAdmin(req,res) {
+    try {
+        const subjectSnap = await db.collection("subjects").where("isDelete",'==',false).get();
+        if(subjectSnap.empty) return res.status(200).json({success:false,message:"Không tồn tại môn học nào"});
+        const subjectData = subjectSnap.docs.map(doc=>({id:doc.id,...doc.data()}));
+        const instructorSnap = await db.collection("users")
+        .where("role",'==','instructor')
+        .where("deleted",'==',false)
+        .get();
+        const instructorData = instructorSnap.docs.map(doc => ({id:doc.id,...doc.data()}));
+        // const subjects = subjectData.map(sb => {
+        //     let instructorNumber = 0;
+        //     instructorData.forEach(ins =>{
+        //         const isCount =  ins.subjectsId.includes(sb.id);
+        //         if(isCount) instructorNumber++;
+        //     });
+        //     return {
+        //         ...sb,
+        //         instructorNumber
+        //     }
+        // });
+        const subjects = subjectData.map(sb => ({
+            ...sb,
+            instructorNumber: instructorData.filter(
+                ins => Array.isArray(ins.subjectId) && ins.subjectId.includes(sb.id)
+            ).length
+        }));
+        return res.status(200).json({success:true,subjects});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({success:false,error})
+    }
+}
+
+
+export async function addSubject(req,res) {
+    try {
+        const values = req.body;
+        const data = {
+            ...values,
+            isDelete:false,
+            active:true
+        }
+        await db.collection("subjects").add(data);
+        const subject = {...data,instructorNumber:0};
+        return res.status(200).json({success:true,subject})
+        
+    } catch (error) {
+        return res.status(500).json({success:false,error});
+    }
+}
+
+export async function updateSubject(req,res) {
+    try {
+        const {id} = req.params;
+        const values = req.body;
+        console.log("id",id);
+        console.log("values",values)
+        const subjectRef = db.collection("subjects").doc(id);
+        const subjectData = await subjectRef.get();
+        if(!subjectData.exists) return res.status(200).json({success:false,message:"Subjects is not existsing"});
+        await subjectData.ref.update(values)
+        const updatedSnap = await subjectRef.get();
+        const instructorNumber = await countInstructor(id);
+        const subject = {
+            id:updatedSnap.id,
+            ...updatedSnap.data(),
+            instructorNumber
+        }
+        return res.status(200).json({success:true,subject})
+    } catch (error) {
+        return res.status(500).json({success:false,error});
+    }
+}
+
+
+export async function deleteSubject(req,res) {
+    try {
+        const id = req.query.id;
+        const subjectSnap = await db.collection("subjects").doc(id).get();
+        if(!subjectSnap.exists) return res.status(200).json({success:false,message:'Môn học không tồn tại'});
+        await subjectSnap.ref.update({isDelete:true});
+        return res.status(200).json({success:true,message:"Xóa thành công"})
+    } catch (error) {
+        return res.status(500).json({success:false,error});
+    }
+}

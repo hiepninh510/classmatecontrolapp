@@ -35,6 +35,12 @@ export interface Subject {
   facultyId:string,
 }
 
+export interface SubjectForAdmin extends Subject{
+  instructorNumber:number,
+  credits:number,
+  active:boolean
+}
+
 export interface AssignLessionForClass{
   id:string,
   name:string
