@@ -38,8 +38,9 @@ export default function StudentLogin() {
         openNotification('error','Login thất bại!!!')
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Login thất bại");
-      recaptchaRef.current?.reset(); // reset captcha nếu login fail
+      // toast.error(err.response?.data?.message || "Login thất bại");
+      openNotification("error",err.response.data.message)
+      recaptchaRef.current?.reset();
     }
   };
 

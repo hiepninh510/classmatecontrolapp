@@ -82,7 +82,8 @@ export async function validateAccessCode(req,res) {
         }
         return res.status(400).json({success:false,message:"Invalid code"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -92,7 +93,7 @@ export async function defaultLogin(req,res) {
         const {code, password} = req.body;
         if(!code || !password) return res.status(400).json({success:false,message:"Password and Code isn't exist!!!!"});
         const userSnap = await db.collection("users").where("code","==",code).get();
-        if(userSnap.empty) return
+        if(userSnap.empty) return res.status(404).json({success:false,message:"Creat notification not success!"});
         const match = await bcrypt.compare(password,userSnap.docs[0].data().password);
         if(!match) return res.status(400).json({success:false,message:"Password isn't true!!!!"});
 
@@ -112,7 +113,8 @@ export async function defaultLogin(req,res) {
         const token = jwt.sign(payload,process.env.JWT_SECRET,{ expiresIn: "1h" });
         return res.json({success:true,typeUser,phoneNumber:formatPhoneNumber(userSnap.docs[0].data().phoneNumber),userName,id,token});
     } catch (error) {
-        return res.status(500).json({ message: error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 

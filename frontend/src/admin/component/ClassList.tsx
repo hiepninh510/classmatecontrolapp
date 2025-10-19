@@ -98,9 +98,9 @@ export function Classes(){
             if(res.data.success) {
                 setClasses(res.data.classes);
             } else openNotification("error",res.data.message);
-        } catch (error) {
+        } catch (error:any) {
             console.log(error);
-            openNotification("error","Lỗi khi tải danh sách lớp!");
+            openNotification("error",error.response.data.message);
         } finally{
             setLoading(false);
         }
@@ -127,17 +127,16 @@ export function Classes(){
     const handleDelete = async (id: string) => {
         try {
             setLoading(true);
-            console.log("í=d",id)
             const res = await adminAPI.deleteClass(id);
             if (res.data.success) {
             openNotification("success", "Đã xoá lớp thành công!");
-            fetchClasses(); // reload lại danh sách
+            fetchClasses(); 
             } else {
             openNotification("error", res.data.message || "Xoá thất bại!");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            openNotification("error", "Lỗi khi xoá lớp!");
+            openNotification("error", error.response.data.message);
         } finally {
             setLoading(false);
         }

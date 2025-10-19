@@ -12,7 +12,8 @@ export async function findIdInstructor(req,res) {
         const idInstructor = instructorQurey.docs[0].id;
         return res.status(200).json({success:true,senderId:idInstructor});
     } catch (error) {
-        res.status(500).json({success:false,message:error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -34,7 +35,8 @@ export async function getSubjects(req,res) {
         const dataSubjects = subjects.filter(Boolean);
         return res.status(200).json({success:true,dataSubjects});
     } catch (error) {
-        res.status(500).json({success:false,message:error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -55,7 +57,8 @@ export async function getAllClass(req,res) {
         const dataClass = classs.filter(Boolean);
         return res.status(200).json({success:true,dataClass});
     } catch (error) {
-        res.status(500).json({success:false,message:error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -89,7 +92,8 @@ export async function assignLessionForClass(req,res) {
       message: "Assign lessons successfully",
     });
    } catch (error) {
-    return res.status(500).json({success:false,message:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
    } 
 }
 
@@ -122,7 +126,8 @@ export async function getAssignedSubject(req,res) {
 
         
     } catch (error) {
-        return res.status(500).json({success:false,message:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -175,7 +180,8 @@ export async function getListStudentToEnterScore(req,res) {
 
         
     } catch (error) {
-        return res.status(500).json({success:false,message:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -188,7 +194,7 @@ export async function saveScore(req,res){
 
         for(const item of data){
             const scoreSnap = await db.collection("scores").where("studentId","==",item.id).get();
-            if(scoreSnap.empty) return
+            if(scoreSnap.empty) return res.status(400).json({success:false,message:"Điểm chưa được khởi tạo"});
 
             const docRef = scoreSnap.docs[0].ref;
             const existingScore = scoreSnap.docs[0].data().score || [];
@@ -204,7 +210,8 @@ export async function saveScore(req,res){
         await batch.commit();
         return res.status(200).json({ success: true, message: "Scores updated successfully" });
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -213,7 +220,7 @@ export async function getMySchedules(req,res) {
         const {id} = req.params;
         if(!id) return
         const scheduleSnap = await db.collection("schedules").where("instructorId",'==',id).get();
-        if(scheduleSnap.empty) return
+        if(scheduleSnap.empty) return res.status(400).json({success:false,message:"Lịch chưa được khởi tạo"});
         const scheduleData = await Promise.all(
             scheduleSnap.docs[0].data().schedule.map(async(sch)=>{
                 const classSnap = await db.collection("class").doc(sch.classId).get();
@@ -236,7 +243,8 @@ export async function getMySchedules(req,res) {
         return res.status(200).json({success:true,scheduleData})
     } catch (error) {
         console.log(error);
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 

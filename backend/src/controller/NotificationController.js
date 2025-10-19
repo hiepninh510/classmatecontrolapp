@@ -50,19 +50,20 @@ export async function creatNotification(req,res){
         });
         return res.status(200).json({success:true,message:"Create notification is success"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi tạo thông báo"});
     }
 }
 
 export async function notificationHello(role,phone) {
     try {
-        if(!role && !phone) return null;
+        if(!role && !phone) return null
         const userSnap = await db.collection('users')
         .where("phoneNumber",'==',phone)
         .where("role",'==',role)
         .get();
 
-        if(userSnap.empty) return null;
+        if(userSnap.empty) return null
         const notificationOfUser = await db.collection("notifications")
         .where("userId","==",userSnap.docs[0].id)
         .get();
@@ -88,11 +89,11 @@ export async function createNotificationFromAdmin(req,res) {
     try {
         const { type,email, message } = req.body;
         if (!email) {
-            throw new Error("Invalid notification data");
+            return res.status(400).json({success:false,message:"Email is missing"});
         }
         const receiverDoc = await db.collection("users").where("email","==",email).get();
         const admin = await db.collection("users").where("role","==","admin").get();
-        if(admin.empty && receiverDoc.empty) throw new Error("Sender not found");
+        if(admin.empty && receiverDoc.empty) return res.status(400).json({success:false,message:"Người nhận không tìm thấy"});
     
         const senderId = admin.docs[0].id;
         const senderName = admin.docs[0].data().name;
@@ -113,7 +114,8 @@ export async function createNotificationFromAdmin(req,res) {
         });
         return res.status(200).json({success:true,message:"Create notification is success"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi tạo thông báo"});
     }
 }
 
@@ -146,7 +148,8 @@ export async function getNotifications(req,res) {
         return res.status(200).json({success:true,notifications});
         
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi tải danh sách thông báo"});
     }
 }
 
@@ -183,7 +186,8 @@ export async function getIdUserToNotification(req,res){
         return res.status(200).json({success:true,userId});
 
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -199,7 +203,8 @@ export async function updateIsRead(req,res) {
         return res.status(200).json({success:true,message:"Update success!"});
 
     } catch (error) {
-         return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+         return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -214,7 +219,8 @@ export async function deleteOneNotification(req,res) {
         await notiRef.update({isDelete:true});
         return res.status(200).json({success:true,message:"Delete notification success!"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -230,7 +236,8 @@ export async function deleteAllNotification(req,res) {
         await batch.commit();
         return res.status(200).json({success:true,message:"Delete all notification success!"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
     
 }
@@ -248,6 +255,7 @@ export async function readAllNotifications(req,res) {
         return res.status(200).json({success:true,message:"Update all notification is read"});
         
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }

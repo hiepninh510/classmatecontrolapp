@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Modal, Form, Input, Switch } from "antd";
 import type { Rooms } from "../../models/locationInterface";
@@ -33,9 +34,9 @@ export function AddRoomModal({ open, onClose, onAddSuccess}:AddRoomModalProps){
       } else {
         openNotification("warning", "Thêm phòng thất bại");
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
-      openNotification("error", "Có lỗi");
+      openNotification("error", error.response.data.message);
     } finally {
       setLoading(false);
     }

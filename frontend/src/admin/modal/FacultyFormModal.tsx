@@ -34,7 +34,7 @@ export default function FacultyFormModal({
       const values = await form.validateFields();
       onSave(values);
       form.resetFields();
-    } catch (err) {
+    } catch (err:any) {
       console.log("Validate error:", err);
     }
   };

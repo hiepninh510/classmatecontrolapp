@@ -23,7 +23,7 @@ export default function ForgotPassword() {
         openNotification("success", "Mã xác nhận đã được gửi đến email của bạn");
       }
     } catch (error: any) {
-      openNotification("error", error.response?.data?.message || "Gửi email thất bại!");
+      openNotification("error", error.response?.data?.message);
     }
   };
 
@@ -39,7 +39,7 @@ export default function ForgotPassword() {
         openNotification("success", "Mã xác thực hợp lệ, vui lòng đặt lại mật khẩu");
       }
     } catch (error: any) {
-      openNotification("error", error.response?.data?.message || "Mã xác thực không đúng!");
+      openNotification("error", error.response?.data?.message);
     }
   };
 
@@ -67,7 +67,7 @@ export default function ForgotPassword() {
         }
       }
     } catch (error: any) {
-      openNotification("error", error.response?.data?.message || "Đổi mật khẩu thất bại!");
+      openNotification("error", error.response?.data?.message);
     }
   };
 
@@ -81,8 +81,8 @@ export default function ForgotPassword() {
           openNotification("warning", "Mã xác nhận đã hết hạn, vui lòng yêu cầu mã mới");
           setStep(1);
           form.resetFields();
-        } catch {
-          openNotification("error", "Không thể xóa mã xác nhận, vui lòng thử lại");
+        } catch(error:any) {
+          openNotification("error", error.response.data.message);
         }
       })();
       return;

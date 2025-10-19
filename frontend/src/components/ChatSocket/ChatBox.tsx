@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "../../api/api";
 import { useEffect, useState } from "react";
 import socket from "./socket";
@@ -35,7 +36,7 @@ export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
           setSenderId(res.data.senderId);
           //console.log(messages);
         }
-      } catch (err) {
+      } catch (err:any) {
         console.error(err);
       }
     };

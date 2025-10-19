@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Button, Input, Select, Space, Typography } from "antd";
 import { PlusOutlined, SearchOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
@@ -55,9 +56,9 @@ export function SchedulesAdmin() {
                 } 
                 else openNotification("warning", res.data.message);
             }
-        } catch (error) {
+        } catch (error:any) {
             console.log(error)
-            openNotification("error", "Không thể tải lịch");
+            openNotification("error", error.response.data.message);
         }
     };
 
@@ -85,8 +86,8 @@ export function SchedulesAdmin() {
                 setSchedules(prev => prev.filter(s => s.id !== record.id));
                 openNotification("success", "Xóa lịch thành công");
             }
-        } catch {
-        openNotification("error", "Không thể xóa lịch");
+        } catch (error:any) {
+        openNotification("error", error.response.data.message);
         }
     };
 
@@ -110,8 +111,8 @@ export function SchedulesAdmin() {
             } else openNotification("warning",res.data.message);
         }
         setOpenModal(false);
-        } catch {
-        openNotification("error", "Có lỗi khi lưu lịch");
+        } catch(error:any) {
+        openNotification("error", error.response.data.message);
         }
     };
 

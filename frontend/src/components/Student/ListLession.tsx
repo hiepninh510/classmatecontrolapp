@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Input, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Checkbox } from 'antd';
@@ -25,7 +26,7 @@ export default function ListLession(){
           const phoneNumber = localStorage.getItem('phoneNumber');
           const updateDone = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/student/finishLession`,{id,checked,phoneNumber});
           if(updateDone.status === 200) setLessions(updateDone.data.updateLessionForUI)
-        } catch (error) {
+        } catch (error:any) {
           console.log(error);
         }
         }

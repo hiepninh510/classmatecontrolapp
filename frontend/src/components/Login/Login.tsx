@@ -1,7 +1,6 @@
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
 import api from '../../api/api.tsx'
-import { toast } from "react-toastify";
 // import { toast } from "react-toastify";
 // import { login, register } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
@@ -32,7 +31,8 @@ export default function Login() {
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Đăng nhập thất bại!");
+      // toast.error(error.response?.data?.message || "Đăng nhập thất bại!");
+      openNotification("error",error.response.data.message)
     }
   };
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Form, Table } from "antd";
 import type { TableProps } from "antd";
@@ -118,8 +119,9 @@ export default function InstructorList() {
       if(resSubject.status) setSubjectOptions(resSubject.data.subjects);
       const resFacultys = await adminAPI.getAllFaculties();
       if(resFacultys.status) setfacultyOptions(resFacultys.data.facultys);
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
+      openNotification("error",error.response.data.message)
     }
   }
 
@@ -154,8 +156,9 @@ export default function InstructorList() {
         setfacultyFilters(uniqueFaculties);
         setClassFilters(uniqueClasses);
         setSubjectFilters(uniqueSubjects);
-      } catch (error) {
+      } catch (error:any) {
         console.error("Lỗi khi fetch instructors:", error);
+        openNotification("error",error.response.data.message);
       } finally {
         setLoading(false);
       }
@@ -206,8 +209,9 @@ export default function InstructorList() {
       }
       setIsModalOpen(false);
       form.resetFields();
-    } catch (error) {
+    } catch (error:any) {
       console.error(error);
+      openNotification("error",error.response.data.message);
     }
   };
 
@@ -226,9 +230,9 @@ export default function InstructorList() {
       } else {
         openNotification("error", "Xóa giảng viên thất bại");
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
-      openNotification("error", "Lỗi khi xóa giảng viên");
+      openNotification("error", error.response.data.message);
     } finally {
       setIsDeleteOpen(false);
     }

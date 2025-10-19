@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react"
 import type { Rooms } from "../../models/locationInterface"
@@ -19,9 +20,9 @@ export function ListRoom(){
             if(res.data.success){
                 setRooms(res.data.rooms);
             }  else openNotification("warning","Hiển thị dữ liệu thất bại")
-        } catch (error) {
+        } catch (error:any) {
             console.log(error);
-            openNotification("error","Có lỗi")
+            openNotification("error",error.response.data.message)
         }
     }
 
@@ -41,9 +42,9 @@ export function ListRoom(){
       if(res.data.success){
           openNotification("success", "Cập nhật trạng thái thành công");
       } else openNotification("warning", "Cập nhật thất bại");
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
-      openNotification("error", "Cập nhật thất bại");
+      openNotification("error",error.response.data.message);
     }
   };
 

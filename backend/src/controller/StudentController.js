@@ -8,7 +8,7 @@ export async function addStudent(req,res) {
     try {
         const {name,phoneNumber,email,code,classId,className} = req.body
         if(!name || !email){
-            return res.status(400).json({success:false,message:'Missing fields'})
+            return res.status(400).json({success:false,message:'Nhập đầy đủ thông tin'})
         }
         const isStudentExisting = await db.collection('students')
         .where('phoneNumber','==',phoneNumber)
@@ -16,7 +16,7 @@ export async function addStudent(req,res) {
         .get();
 
         if(!isStudentExisting.empty){
-            return res.status(400).json({success:false,message:'Student already exists'});
+            return res.status(400).json({success:false,message:'Sinh viên đã tồn tại'});
         }
         const token = jwt.sign({email,phoneNumber},
             process.env.JWT_SECRET,
@@ -62,10 +62,10 @@ export async function addStudent(req,res) {
                 <a href="${setupLink}">${setupLink}</a>
                 <p>This link will expire in 24 hours.</p>`
         });
-        return res.status(201).json({success:true,message:'Student added successfully'});
+        return res.status(201).json({success:true,message:'Thêm học sinh thành công'});
     } catch (error) {
-        console.log(error)
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Thêm sinh viên không thành công"});
     }
 }
 
@@ -74,9 +74,12 @@ export async function assignLesson(req,res){
         let {phoneNumber,description,subjectId,phoneInstructor} = req.body;
         phoneInstructor = normalPhoneNumber(phoneInstructor);
         const studentQuery = await db.collection('students').where('phoneNumber','==',phoneNumber).get();
+        if(studentQuery.empty){
+            return res.status(400).json({seccess:false,message:'Không tìm thấy học sinh'});
+        };
         const  instructorQuery = await db.collection('users').where('phoneNumber','==',phoneInstructor).get();
-        if(studentQuery.empty || instructorQuery.empty){
-            return res.status(400).json({seccess:false,message:'Student or Instructor not found'});
+        if(instructorQuery.empty){
+            return res.status(400).json({seccess:false,message:'Không tìm thấy giảng viên'});
         };
         const lessionsPresent = studentQuery.docs[0].data().lessions || [];
         const instructor = instructorQuery.docs[0].id;
@@ -92,7 +95,8 @@ export async function assignLesson(req,res){
         await studentQuery.docs[0].ref.update({'lessions':lessionsPresent});
         return res.status(200).json({success:true,message:'Lesson assigned successfully',lession:newLession});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error);
+        return res.status(500).json({success:false,message:"Giao bài tập thất bại"});
     }
 }
 
@@ -131,7 +135,8 @@ export async function getStudentList(req,res) {
     });
         return res.status(200).json({student});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error)
+        return res.status(500).json({success:false,message:"Lỗi tải danh sách student"});
     }
 }
 
@@ -157,7 +162,8 @@ export async function getOneStudent(req,res) {
             }
         })
     } catch (error) {
-         return res.status(500).json({success:false,error:error.message});
+        console.log(error)
+         return res.status(500).json({success:false,message:"Lỗi tìm kiếm sinh viên"});
     }
 }
 
@@ -188,7 +194,8 @@ export async function updateStudent(req,res) {
         }
         return res.status(200).json({success:true,message:'Student  update successfully',student});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Cập nhật thất bại"});
     }
 }
 
@@ -212,7 +219,8 @@ export async function deleteStudent(req,res) {
         });
         return res.status(200).json({success:true,message:'Student deleted successfully'});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message);
+        return res.status(500).json({success:false,message:"Xóa thất bại"});
     }
 }
 
@@ -222,28 +230,30 @@ export async function getMyLession(req,res) {
         if(!phone) {return res.status(400).json({success:false,message:'Missing phone'})};
         const myPhone = normalPhoneNumber(phone);
         const studentQuery = await db.collection('students').where('phoneNumber','==',myPhone).get();
+        if(studentQuery.empty) return res.status(404).json({success:false,message:"Sinh viên không tồn tại"});
         const studentData = studentQuery.docs[0].data();
-    const lessons = studentData.lessions || [];
+        const lessons = studentData.lessions || [];
 
-    const lessonsWithInstructorName = await Promise.all(
-      lessons.map(async (lesson) => {
-        if (!lesson.instructor) return { ...lesson, instructorName: null };
-        const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
-        const instructorName = instructorSnap.exists ? instructorSnap.data().name : null;
-        const subjectSnap = await db.collection("subjects").doc(lesson.subjectId).get();
-        const title = subjectSnap.exists? subjectSnap.data().name : null
-        return {
-          ...lesson,
-          instructorName,
-          title
-        };
-      })
-    );
+        const lessonsWithInstructorName = await Promise.all(
+        lessons.map(async (lesson) => {
+            if (!lesson.instructor) return { ...lesson, instructorName: null };
+            const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
+            const instructorName = instructorSnap.exists ? instructorSnap.data().name : null;
+            const subjectSnap = await db.collection("subjects").doc(lesson.subjectId).get();
+            const title = subjectSnap.exists? subjectSnap.data().name : null
+            return {
+            ...lesson,
+            instructorName,
+            title
+            };
+        })
+        );
         if(studentQuery.empty) return res.status(404).json({success:false,message:'Student not found'});
         return res.status(200).json({success:true,myLessions:lessonsWithInstructorName});
 
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi tải danh sách bài học"});
     }
 }
 
@@ -262,7 +272,8 @@ export async function markLessionDone(req,res) {
         await studentQuery.docs[0].ref.update({lessions:myLessions});
         return res.status(200).json({success:true,message:"Lession marked as done"});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Không thể cập nhật hoàn thành"});
     }
 }
 
@@ -284,14 +295,14 @@ export async function editPofile(req,res) {
     return res.status(200).json({success:true, message: "Profile updated" });
 
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi cập nhật profile"});
     }
 }
 
 export async function loginEmail(req,res) {
     try {
        const email = req.body.phoneNumber;
-       console.log(email)
        if(!email) return res.status(400).json({success:false, message:'Email is required'});
        const accessCode = Math.floor(100000+Math.random() * 900000).toString();
        const accessCodeQuery = await db.collection('users').where('email','==',email).get();

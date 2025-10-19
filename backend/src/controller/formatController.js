@@ -31,7 +31,8 @@ export function validatePhoneNumber(req,res,next){
         }
         next();
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -65,7 +66,8 @@ export function normalPhoneNumber(phoneNumber){
         return phoneNumber;
 
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -85,7 +87,8 @@ export function authenticate(req,res,next){
             next();
         })
     } catch (error) {
-        // return res.status(500).json({ message: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -142,7 +145,8 @@ export async function convertCodeID(req,res,next) {
         req.params.id = instructorRef.docs[0].id;
         next();
     } catch (error) {
-         return res.status(400).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 

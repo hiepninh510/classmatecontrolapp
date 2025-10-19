@@ -34,9 +34,9 @@ export function Faculties() {
       const res = await adminAPI.getFacultiesForAdmin();
       if (res.data.success) setFaculties(res.data.faculties);
       else openNotification("warning", res.data.message);
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
-      openNotification("warning", "Lỗi tải danh sách khoa");
+      openNotification("warning", error.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -69,8 +69,9 @@ export function Faculties() {
       }
       setOpenFormModal(false);
       fetchFacultiesForAdmin();
-    } catch (err) {
+    } catch (err:any) {
       console.log(err);
+      openNotification("error",err.response.data.message)
     } finally {
       setModalLoading(false);
     }
@@ -91,9 +92,9 @@ export function Faculties() {
         setFaculties(prev => prev.filter(fac => fac.id !== selectedFaculty?.id)); 
         setSelectedFaculty(null);
       } else openNotification("warning", "Xoá khoa thất bại");
-    } catch (err) {
+    } catch (err:any) {
         console.log(err);
-        openNotification("error", "Xoá thất bại");
+        openNotification("error", err.response.data.message);
     } finally {
       setModalLoading(false);
     }

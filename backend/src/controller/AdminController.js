@@ -47,7 +47,8 @@ export async function getAllStudent(req,res) {
         // console.log(result)
         return res.status(200).json({success:true,result});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -71,7 +72,8 @@ export async function  getAllClasses(req,res) {
         const classes = classFillter.filter(Boolean);
        return res.status(200).json({success:true,classes});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -82,7 +84,8 @@ export async function getAllRoom(req,res) {
         const rooms = roomRef.docs.map(doc=>({id:doc.id,...doc.data()}));
         return res.status(200).json({success:true,rooms});
     } catch (error) {
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -93,7 +96,8 @@ export async function getAllTimeFrames(req,res) {
         const timeFrames = timeFrameSnap.docs.map(doc =>({id:doc.id,...doc.data()}))
         return res.status(200).json({success:true,timeFrames});
     } catch (error) {
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -189,7 +193,8 @@ export async function getAllIntructors(req,res) {
         // console.log(instructorsWithDetails)
         return res.status(200).json({success:true,instructorsWithDetails});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -201,7 +206,8 @@ export async function getAllSubjects(req,res) {
         const subjects = subjectSnap.docs.map(sb=>({id:sb.id,...sb.data()}));
         return res.status(200).json({success:true,subjects});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -210,12 +216,13 @@ export async function getAllFaculties(req,res) {
     try {
         const facultySnap = await db.collection('facultys').get();
 
-        if(facultySnap.empty) return res.status(200).json({success:false,message:"Facultys is not existing!!!"});
+        if(facultySnap.empty) return res.status(404).json({success:false,message:"Facultys is not existing!!!"});
 
         const facultys = facultySnap.docs.map(i => ({id:i.id,...i.data()}));
         return res.status(200).json({success:true,facultys});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -253,7 +260,7 @@ export async function createInstructor(req,res) {
         .where("phaseId",'==',phase.id)
         .get()
 
-        if(!teachingAssignmentSnap.empty) return res.status(200).json({success:false,message:"Lớp và Môn này đã được phân công!!!"})
+        if(!teachingAssignmentSnap.empty) return res.status(404).json({success:false,message:"Lớp và Môn này đã được phân công!!!"})
         
         await db.collection('users').add({
             code,
@@ -269,14 +276,15 @@ export async function createInstructor(req,res) {
         });
         return res.status(201).json({success:true,message:'Instructor added successfully'});
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
 export async function deleteInstructor(req,res) {
     try {
         const {id} = req.params;
-        if(!id) return res.status(200).json({success:false,message:"Id rỗng"});
+        if(!id) return res.status(400).json({success:false,message:"Id rỗng"});
         const userRef = await db.collection("users").doc(id).get();
         if(userRef.exists){
             await userRef.ref.update({
@@ -285,7 +293,8 @@ export async function deleteInstructor(req,res) {
         }
         return res.status(200).json({success:true,message:"Delete success!"})
     } catch (error) {
-        
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -307,14 +316,15 @@ export async function updateInstructor(req,res) {
 
         return res.status(200).json({success:true,message:"Update success!"})
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 } 
 
 export async function deleteOneClass(req,res) {
     try {
         const {id} = req.params;
-        if(!id) return res.status(200).json({success:false,message:"Id rỗng"});
+        if(!id) return res.status(400).json({success:false,message:"Id rỗng"});
         const classRef = await db.collection("class").doc(id).get();
         if(classRef.exists) {
             await classRef.ref.update({
@@ -323,23 +333,25 @@ export async function deleteOneClass(req,res) {
         }
         return res.status(200).json({success:true,message:"Delete success!"})
     } catch (error) {
-         return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
 export async function creatClass(req,res) {
     try {
         const values = req.body;
-        if(!values) return res.status(200).json({success:false,message:"Thông tin trỗng"});
+        if(!values) return res.status(400).json({success:false,message:"Thông tin trỗng"});
         const classesSnap = await db.collection("class").where("name",'==',values.name).get();
-        if(!classesSnap.empty) res.status(200).json({success:false,message:"Lớp đã tồn tại"});
+        if(!classesSnap.empty) res.status(401).json({success:false,message:"Lớp đã tồn tại"});
         await db.collection("class").add({
             ...values,
             isDelete:false
         })
         return res.status(201).json({success:true,message:"Thêm thành công"});
     } catch (error) {
-         return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -347,7 +359,7 @@ export async function updateRoomStatus(req,res) {
     try {
         const {id} = req.params;
         const {active} = req.body;
-        if(!id) return res.status(200).json({success:false,message:"Id rỗng"});
+        if(!id) return res.status(400).json({success:false,message:"Id rỗng"});
         const roomRef = await db.collection("rooms").doc(id).get();
         if(roomRef.exists) {
             roomRef.ref.update({
@@ -356,7 +368,8 @@ export async function updateRoomStatus(req,res) {
         } else res.status(200).json({success:false,message:"Update fail!"})
         return res.status(200).json({success:true,message:"Update success!"})
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -372,24 +385,25 @@ export async function addRoom(req,res) {
         const newRoom = { id: docRef.id, ...newRoomSnap.data() };
         return res.status(200).json({success:true,newRoom})
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
 export async function getSchedulesFromFaculties(req,res){
     try {
         const {facultyId} = req.params;
-        if(!facultyId) return res.status(200).json({success:false,message:"Dữ liệu rỗng"});
+        if(!facultyId) return res.status(400).json({success:false,message:"Dữ liệu rỗng"});
 
         const facultieRef = await db.collection("facultys").doc(facultyId).get();
-        if(!facultieRef.exists) return res.status(200).json({success:false,message:"Khoa khong tồn tại"});
+        if(!facultieRef.exists) return res.status(404).json({success:false,message:"Khoa khong tồn tại"});
         const faculties = {id:facultieRef.id,...facultieRef.data()}
 
         const classSnap = await db.collection("class")
         .where("facultyId",'==',facultyId)
         .get();
         
-        if(classSnap.empty) return res.status(200).json({success:false,message:"Class rỗng"});
+        if(classSnap.empty) return res.status(400).json({success:false,message:"Class rỗng"});
         const classes = classSnap.docs.map(doc => ({id:doc.id,...doc.data()}));
         const classIds = classes.map(c => c.id);
 
@@ -408,7 +422,7 @@ export async function getSchedulesFromFaculties(req,res){
         const instructorId = instructors.map(item => item.id);
 
         const subjectSnap = await db.collection("subjects").where("facultyId","==",facultyId).get();
-        if(subjectSnap.empty) return res.status(200).json({success:false,message:"Subject rỗng"});
+        if(subjectSnap.empty) return res.status(400).json({success:false,message:"Subject rỗng"});
         const subjects = subjectSnap.docs.map(doc=>({id:doc.id,...doc.data()}));
 
         let chucked = [];
@@ -464,17 +478,18 @@ export async function getSchedulesFromFaculties(req,res){
             })
         return res.status(200).json({ success: true, schedules });
     } catch (error) {
-        return res.status(500).json({success:false,error:error.message});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
 export async function getSchedulesWithCodeFacultyId(req,res) {
     try {
         const {code,facultyId} = req.query;
-        if(!code || !facultyId) return res.status(200).json({success:false,message:"Dữ liệu rỗng"});
+        if(!code || !facultyId) return res.status(400).json({success:false,message:"Dữ liệu rỗng"});
 
         const facultieRef = await db.collection("facultys").doc(facultyId).get();
-        if(!facultieRef.exists) return res.status(200).json({success:false,message:"Khoa khong tồn tại"});
+        if(!facultieRef.exists) return res.status(400).json({success:false,message:"Khoa khong tồn tại"});
         const faculties = {id:facultieRef.id,...facultieRef.data()}
 
         const instructorSnap = await db.collection("users").where("code","==",code).get();
@@ -537,7 +552,8 @@ export async function getSchedulesWithCodeFacultyId(req,res) {
         })
         return res.status(200).json({ success: true, schedules });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -576,7 +592,7 @@ export async function deleteSchedules(req,res) {
 
     } catch (error) {
         console.error("Lỗi khi cập nhật schedule:", error);
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(500).json({success:false,message:"Lỗi"});
             
     }
 }
@@ -666,7 +682,7 @@ export async function addSchedule(req, res) {
     return res.status(200).json({ success: true, values });
   } catch (error) {
     console.error("Lỗi khi thêm schedule:", error);
-    return res.status(500).json({ success: false, error: error.message });
+        return res.status(500).json({success:false,message:"Lỗi"});
   }
 }
 
@@ -791,8 +807,8 @@ export async function updateSchedule(req, res) {
 
     return res.status(200).json({ success: true, valuesForUI });
   } catch (error) {
-    console.error("Lỗi khi cập nhật schedule:", error);
-    return res.status(500).json({ success: false, error: error.message });
+        console.error("Lỗi khi cập nhật schedule:", error);
+        return res.status(500).json({success:false,message:"Lỗi"});
   }
 }
 
@@ -803,7 +819,7 @@ export async function getFacultiesForAdmin(req,res){
         .where("isDelete",'==',false)
         .get();
 
-        if(facultiesSnap.empty) return res.status(200).json({ success: false, message:"Không có khoa nào còn hoạt động" });
+        if(facultiesSnap.empty) return res.status(404).json({ success: false, message:"Không có khoa nào còn hoạt động" });
         const facultiesData = facultiesSnap.docs.map(doc=>({id:doc.id,...doc.data()}));
         const classSanp = await db.collection("class").where("isDelete","==",false).get();
         const instructorSnap = await db.collection("users")
@@ -826,7 +842,8 @@ export async function getFacultiesForAdmin(req,res){
         })
          return res.status(200).json({ success: true, faculties });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -836,7 +853,8 @@ export async function addFaculty(req,res) {
         await db.collection("facultys").add({...values,isDelete:false});
         return res.status(200).json({ success: true, values });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -848,7 +866,7 @@ export async function updateFaculty(req,res) {
         const facultieRef = await db.collection("facultys").get();
         const facultiesData = facultieRef.docs.map(doc => ({id:doc.id,...doc.data()}));
         const isDeanId = facultiesData.filter(f => f.deanId === values.deanId);
-        if(isDeanId.length >0) return res.status(200).json({success:false,message:"Giảng viên này đã là trưởng khoa"});
+        if(isDeanId.length >0) return res.status(409).json({success:false,message:"Giảng viên này đã là trưởng khoa"});
 
         const facultySnap = await db.collection("facultys").where("code",'==',id).get();
         if (facultySnap.empty) {
@@ -872,7 +890,8 @@ export async function updateFaculty(req,res) {
         values: { id: updatedFacultySnap.id, ...updatedFacultySnap.data() },
         });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -880,11 +899,12 @@ export async function deleteFaculty(req,res) {
     try {
        const {id} = req.params;
        const facultySnap = await db.collection("facultys").doc(id).get()
-       if(!facultySnap.exists) return res.status(200).json({success:false,message:"Khoa này không tồn tại"});
+       if(!facultySnap.exists) return res.status(409).json({success:false,message:"Khoa này không tồn tại"});
        await facultySnap.ref.update({isDelete:true});
        return res.status(200).json({success:true,message:"Xóa khoa thành công"});
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -936,7 +956,7 @@ async function countInstructor(id) {
 export async function getSubjectForAdmin(req,res) {
     try {
         const subjectSnap = await db.collection("subjects").where("isDelete",'==',false).get();
-        if(subjectSnap.empty) return res.status(200).json({success:false,message:"Không tồn tại môn học nào"});
+        if(subjectSnap.empty) return res.status(404).json({success:false,message:"Không tồn tại môn học nào"});
         const subjectData = subjectSnap.docs.map(doc=>({id:doc.id,...doc.data()}));
         const instructorSnap = await db.collection("users")
         .where("role",'==','instructor')
@@ -962,8 +982,8 @@ export async function getSubjectForAdmin(req,res) {
         }));
         return res.status(200).json({success:true,subjects});
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({success:false,error})
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -981,7 +1001,8 @@ export async function addSubject(req,res) {
         return res.status(200).json({success:true,subject})
         
     } catch (error) {
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -993,7 +1014,7 @@ export async function updateSubject(req,res) {
         console.log("values",values)
         const subjectRef = db.collection("subjects").doc(id);
         const subjectData = await subjectRef.get();
-        if(!subjectData.exists) return res.status(200).json({success:false,message:"Subjects is not existsing"});
+        if(!subjectData.exists) return res.status(404).json({success:false,message:"Subjects is not existsing"});
         await subjectData.ref.update(values)
         const updatedSnap = await subjectRef.get();
         const instructorNumber = await countInstructor(id);
@@ -1004,7 +1025,8 @@ export async function updateSubject(req,res) {
         }
         return res.status(200).json({success:true,subject})
     } catch (error) {
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
 
@@ -1013,10 +1035,11 @@ export async function deleteSubject(req,res) {
     try {
         const id = req.query.id;
         const subjectSnap = await db.collection("subjects").doc(id).get();
-        if(!subjectSnap.exists) return res.status(200).json({success:false,message:'Môn học không tồn tại'});
+        if(!subjectSnap.exists) return res.status(400).json({success:false,message:'Môn học không tồn tại'});
         await subjectSnap.ref.update({isDelete:true});
         return res.status(200).json({success:true,message:"Xóa thành công"})
     } catch (error) {
-        return res.status(500).json({success:false,error});
+        console.log(error.message)
+        return res.status(500).json({success:false,message:"Lỗi"});
     }
 }

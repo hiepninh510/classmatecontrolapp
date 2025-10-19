@@ -1,10 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Form, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useEffect, useState } from 'react';
 import {useOpenNotification} from '../../hooks/Notification/notification.tsx';
 import { DeleteOutlined } from '@ant-design/icons';
 // import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/ThemeContext.tsx';
+// import { useAuth } from '../../hooks/ThemeContext.tsx';
 import Search, { type SearchProps } from 'antd/es/input/Search';
 import { studentAPI } from '../../components/Instructor/ListStudent/StudentAPI.ts';
 import { StudentFormModal } from '../modal/StudentFromModal.tsx';
@@ -29,7 +31,7 @@ export default function StudentList(){
     const { openNotification, contextHolder } = useOpenNotification();
     const [studentToDelete, setStudentToDelete] = useState<StudentWithClassAndFaculty | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const {id} = useAuth();
+    // const {id} = useAuth();
     const [filteredStudent, setFilteredStudent] = useState<StudentWithClassAndFaculty[]>([]);
     const [searchText,setSearchText] = useState<string>("");
     const [classFilters,setClassFillter] = useState< {text: string; value: string}[]>([]);
@@ -106,15 +108,16 @@ export default function StudentList(){
         }));
 
         setfacultyFilters(fillterfacultys);
-      } catch (error) {
+      } catch (error:any) {
         console.error("Lỗi khi fetch lessons:", error);
+        openNotification("error",error.response.data.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStudent();
-  }, [id]);
+  }, []);
 
 //   const onOpenChat = async (studentId: string) => {
 //   try {
@@ -155,8 +158,9 @@ export default function StudentList(){
       setIsModalOpen(false);
       form.resetFields();
         
-    } catch (error) {
+    } catch (error:any) {
         console.error(error);
+        openNotification('error',error.response.data.message)
     }
   }
 
@@ -177,9 +181,9 @@ export default function StudentList(){
       } else {
         openNotification('error', 'Xóa sinh viên thất bại');
       }
-    } catch (error) {
+    } catch (error:any) {
       console.error(error);
-      openNotification('error', 'Lỗi khi xóa sinh viên');
+      openNotification('error', error.response.data.message);
     } finally {
       setIsDeleteOpen(false);
     }

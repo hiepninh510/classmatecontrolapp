@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react"
 import type { SubjectForAdmin } from "../../models/locationInterface";
@@ -26,9 +27,9 @@ export function SubjectsForAdmin(){
                 setSubjects(res.data.subjects);
                 setFilteredSubjects(res.data.subjects);
             }
-        } catch (error) {
+        } catch (error:any) {
             console.log(error)
-            openNotification("error","Không thể tải danh sách môn học");
+            openNotification("error",error.response.data.message);
         } finally{
             setLoading(false);
         }
@@ -54,8 +55,8 @@ export function SubjectsForAdmin(){
             setSubjects(prev => prev.filter(f=>f.id !== id));
         } else openNotification("warning","Không thể xóa");
         //fetchSubjects();
-        } catch {
-            openNotification("error","Không thể xóa");
+        } catch (error:any) {
+            openNotification("error",error.response.data.message);
         }
   };
 
@@ -105,9 +106,9 @@ export function SubjectsForAdmin(){
         openNotification("success", "Cập nhật môn học thành công");
       } else openNotification("error", "Cập nhật môn học thất bại");
     }
-  } catch (error) {
+  } catch (error:any) {
     console.log(error);
-    openNotification("error", "Thao tác thất bại");
+    openNotification("error", error.response.data.message);
   } finally {
     setLoading(false);
   }
