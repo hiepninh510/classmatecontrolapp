@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 type AutheContextType = {
     id:string | null,
-    role: 'student'|"instructor"|null;
+    role: 'student'|"instructor"|"admin"|null;
     userName:string|null;
     setAuth:(role:"student"|"instructor", userName: string, id:string)=>void;
     clearAuth:()=>void;
@@ -11,7 +11,7 @@ type AutheContextType = {
 const AuthContext = createContext<AutheContextType |undefined>(undefined);
 
 export const AuthProvider = ({children}:{children:ReactNode})=>{
-    const [role, setRole] = useState<"student" | "instructor"|null>(null);
+    const [role, setRole] = useState<"student" | "instructor"|"admin"|null>(null);
     const [id,setId] = useState<string|null>(null)
     const [userName, setUserName] = useState<string | null>(null);
     const [loading,setLoading] = useState(true);
@@ -28,7 +28,7 @@ export const AuthProvider = ({children}:{children:ReactNode})=>{
       setLoading(false);
     },[]);
 
-    const setAuth = (role: "student" | "instructor", userName: string, id:string) => {
+    const setAuth = (role: "student" | "instructor" | "admin", userName: string, id:string) => {
       setRole(role);
       setUserName(userName);
       setId(id);

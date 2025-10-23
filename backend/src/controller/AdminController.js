@@ -1043,3 +1043,33 @@ export async function deleteSubject(req,res) {
         return res.status(500).json({success:false,message:"Lỗi"});
     }
 }
+
+export async function getListRoomChat(req,res) {
+    try {
+        const adminSnap = await db.collection("users").where("role","==","admin").get();
+        if(adminSnap.empty) return res.status(404).json({success:false,message:"Don't found admin"});
+        const chatsAdmin = await db.collection("chats")
+        .where("participants","array-contains",adminSnap.docs[0].id)
+        .get();
+
+        const userRef= await db.collection("users").get();
+        const userData = userRef.docs.map(doc => ({id:doc.id,...doc.data()}));
+
+        if(chatsAdmin.empty) return res.status(404).json({success:false,message:"Don't found room chat of Admin"});
+
+        const chatRoomsData = chatsAdmin.docs.map(doc =>({id:doc.id,...doc.data()}));
+        const chatRooms = chatRoomsData.map(chR =>{
+            const userNeedFind = userData.find(usD =>{
+                return chR.participants.includes(usD.id);
+            })
+            return {
+                ...chR,
+                name:userNeedFind.name,             
+            }
+        })
+        return res.status(200).json({success:true,chatRooms});
+    } catch (error) {
+        return res.status(500).json({success:false,message:"Lỗi tải room chat"})
+    }
+
+}

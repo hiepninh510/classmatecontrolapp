@@ -3,6 +3,7 @@ import { AppHeader } from "./AppHeader";
 import { AppFooter } from "./AppFooter";
 import { AppContent } from "./AppContent";
 import { Outlet } from "react-router-dom";
+import { ChatWidget } from "../ChatSocket/ChatWeget";
 
 export default function AppLayout(){
     const {role,userName} = useAuth();
@@ -14,6 +15,7 @@ export default function AppLayout(){
             role={role!}
             userName={userName!}/>
         <AppContent><Outlet/></AppContent>
+            {role !== "admin" && <ChatWidget />}
         <AppFooter/>
      </>
      )

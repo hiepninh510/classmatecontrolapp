@@ -33,6 +33,7 @@ export async function openChatRoom(req, res) {
           };
         })
       );
+      console.log(chatRooms);
     return res.status(200).json({ success: true, chatRooms,senderId: idUser});
 
   } catch (error) {
@@ -79,7 +80,7 @@ export async function openChatRoomOfStudent(req, res) {
           };
         })
       );
-    console.log(chatRooms);
+    // console.log(chatRooms);
     return res.status(200).json({ success: true, chatRooms,senderId:idStudent});
 
   } catch (error) {
@@ -94,7 +95,7 @@ export async function chatWithStudent(req, res) {
     if (!studentId) return res.status(400).json({ success: false, message: "Missing idStudent" });
 
     const normalizedPhone = normalPhoneNumber(phoneNumber);
-    console.log(normalizedPhone);
+    // console.log(normalizedPhone);
     const userQuery = await db.collection("users").where("phoneNumber", "==", normalizedPhone).get();
     if (userQuery.empty) return res.status(404).json({ success: false, message: "Teacher not found" });
 
@@ -150,7 +151,7 @@ export async function chatWithStudent(req, res) {
 
 export async function getMessagesOfRoom(req,res) {
   try {
-    console.log("chat")
+    // console.log("chat")
     let {idRoom,phoneNumber} = req.params;
     phoneNumber = normalPhoneNumber(phoneNumber);
     let query = await db.collection('students').where('phoneNumber','==',phoneNumber).get();

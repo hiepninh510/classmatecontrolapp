@@ -22,6 +22,7 @@ import { SchedulesAdmin } from './admin/component/Schedules/Schedules.tsx';
 import { Faculties } from './admin/component/Faculties.tsx';
 import ForgotPassword from './components/Login/ForgetPassWord.tsx';
 import { SubjectsForAdmin } from './admin/component/SubjectAdmin.tsx';
+import MessageWithUser from './admin/component/Message.tsx';
 function App() {
   return(
     <>
@@ -42,6 +43,7 @@ function App() {
           <Route path='dashboardSchedules' element={<SchedulesAdmin/>}></Route>
           <Route path='dashboardFaculties' element={<Faculties/>}></Route>
           <Route path='dashbordSubject' element={<SubjectsForAdmin/>}></Route>
+          <Route path='messages' element={<MessageWithUser/>}></Route>
         </Route>
 
         <Route path="student" element={<AppLayout/>}>

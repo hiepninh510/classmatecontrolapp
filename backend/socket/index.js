@@ -24,11 +24,6 @@ export const initSocket = (server) => {
       console.log(`${socket.id} joined room ${roomId}`);
     });
 
-    socket.on("joinNotificationRoom", (userId) => {
-      socket.join(userId);
-      console.log(`${socket.id} joined notification room: ${userId}`);
-    });
-
     socket.on("sendMessage", async ({ roomId, senderId, text }) => {
       try {
         const messageId = uuidv4();
@@ -42,6 +37,11 @@ export const initSocket = (server) => {
       }
     });
 
+    socket.on("joinNotificationRoom", (userId) => {
+      socket.join(userId);
+      console.log(`${socket.id} joined notification room: ${userId}`);
+    });
+
     socket.on("joinRoomAdmin",async(phoneNumber,typeUser)=>{
       if(typeUser === "admin") socket.join("adminRoom");
       else {
@@ -51,6 +51,53 @@ export const initSocket = (server) => {
         else socket.join("adminRoom");
       }
       console.log("Đã join vào room có Admin")
+    })
+
+    socket.on("chatWithAdmin", async (id)=>{
+      const adminSnap = await db.collection("users").where("role","==","admin").get();
+      if(adminSnap.empty) return null;
+
+      const chatAdminSnap = await db.collection("chats")
+      .where("participants", "array-contains", adminSnap.docs[0].id)
+      .get();
+
+      const existingChat = chatAdminSnap.docs.find(doc => {
+        const participants = doc.data().participants || [];
+        return participants.includes(id);
+      });
+
+      if(!existingChat){
+         const welcomeMsg = {
+          id: uuidv4(),
+          senderId:adminSnap.docs[0].id ,
+          text: "👋 Chào bạn! Bạn cần hỗ trợ gì?",
+          createdAt: new Date(),
+        };
+      const chatStart =   await db.collection("chats").add({
+          createdAt:new Date(),
+          messages:[welcomeMsg],
+          participants:[adminSnap.docs[0].id,id]
+        });
+
+        console.log("Đã khởi tạo room chats");
+        const message = {
+          id:chatStart.id,
+          messages:[welcomeMsg],
+        }
+        socket.join(chatStart.id);
+        socket.emit("chatHistory",message);
+      } else{
+        const message = {
+          id:existingChat.id,
+          messages:existingChat.data().messages || [],
+          createdAt:existingChat.data().createdAt
+        }
+        socket.join(existingChat.id);
+        socket.emit("chatHistory",message);
+      }
+
+      console.log("ĐÃ KẾT NỐI VỚI ADMIN");
+
     })
 
     socket.on("disconnect", () => console.log(`User disconnected: ${socket.id}`));

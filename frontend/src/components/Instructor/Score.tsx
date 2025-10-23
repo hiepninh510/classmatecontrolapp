@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import type { ScoreStudent, ClassStudent, Subject, Score } from "../../models/locationInterface";
-import { studentAPI } from "./ListStudent/StudentAPI";
+import { studentAPI } from "./ListStudent/InstructorAPI";
 import { Button, Input, Select, Table } from "antd";
 import { useAuth } from "../../hooks/ThemeContext";
 import { useOpenNotification } from "../../hooks/Notification/notification";

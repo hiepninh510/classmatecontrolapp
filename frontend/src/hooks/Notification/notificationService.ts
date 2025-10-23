@@ -1,4 +1,4 @@
-import { studentAPI } from "../../components/Instructor/ListStudent/StudentAPI";
+import { studentAPI } from "../../components/Instructor/ListStudent/InstructorAPI";
 import type { Notifi } from "../../models/locationInterface";
 
 export const notificationService = {

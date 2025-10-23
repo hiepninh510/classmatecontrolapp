@@ -7,7 +7,7 @@ import { useNotification } from "../../hooks/Notification/notificationMessage";
 
 
 interface HeaderProps{
-    role:'student'|'instructor',
+    role:'student'|'instructor'|"admin",
     userName:string,
 }
 
@@ -25,6 +25,7 @@ const menuConfig:Record<"admin"|"student"|"instructor",{key:string,label:string,
         {key:'5',label:"Lịch Phân Công",path:"/admin/dashboardSchedules"},
         {key:'6',label:"Danh sách khoa",path:"/admin/dashboardFaculties"},
         {key:'7',label:"Danh sách môn",path:"/admin/dashbordSubject"},
+        {key:'8',label:"Message",path:"/admin/messages"},
     ],
     student:[
         {key:'1',label:"Danh sách bài học",path:"/student/dashboard"},

@@ -6,7 +6,7 @@ import { BookOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/ThemeContext.tsx';
 import Search, { type SearchProps } from 'antd/es/input/Search';
-import { studentAPI } from './StudentAPI.ts';
+import { studentAPI } from './InstructorAPI.ts';
 import { StudentFormModal } from '../../../admin/modal/StudentFromModal.tsx';
 import { AssignLessionFormModal } from './Modal/AssignLesion.tsx';
 import { AssignLessinClassFormModal } from './Modal/AssignLessionForClas.tsx';

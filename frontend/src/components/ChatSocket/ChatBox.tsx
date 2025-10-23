@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import socket from "./socket";
 import { useAuth } from "../../hooks/ThemeContext";
 import { notificationService } from "../../hooks/Notification/notificationService";
-import type { Notifi } from "../../models/locationInterface";
+import type { Message, Notifi } from "../../models/locationInterface";
 
-interface Message {
-  id: string;
-  senderId: string;
-  text: string;
-  createdAt: string;
-}
+// interface Message {
+//   id: string;
+//   senderId: string;
+//   text: string;
+//   createdAt: string;
+// }
 
 interface ChatBoxProps {
   roomId: string;

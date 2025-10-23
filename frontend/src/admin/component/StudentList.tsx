@@ -8,7 +8,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 // import { useNavigate } from 'react-router-dom';
 // import { useAuth } from '../../hooks/ThemeContext.tsx';
 import Search, { type SearchProps } from 'antd/es/input/Search';
-import { studentAPI } from '../../components/Instructor/ListStudent/StudentAPI.ts';
+import { studentAPI } from '../../components/Instructor/ListStudent/InstructorAPI.ts';
 import { StudentFormModal } from '../modal/StudentFromModal.tsx';
 import { DeleletStudentModal } from '../modal/DeleteModal.tsx';
 import { type Student} from '../../models/locationInterface.tsx';

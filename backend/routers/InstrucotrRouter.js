@@ -6,42 +6,51 @@ const router = Router();
 router.get("/getSubjects/:id",
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getSubjects);
+    InstructorController.getSubjects
+);
 
 router.get('/getAllClass/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getAllClass);
+    InstructorController.getAllClass
+);
 
 router.get('/getAssignedSubject/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getAssignedSubject);
+    InstructorController.getAssignedSubject
+);
 
 router.get('/getListStudentToEnterScore',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getListStudentToEnterScore);
-
-router.post('/assignLessionForClass',
-    FormatController.authenticate,
-    FormatController.authorize(["instructor","admin"]),
-    InstructorController.assignLessionForClass);
-
-router.put('/saveScore',
-    FormatController.authenticate,
-    FormatController.authorize(["instructor","admin"]),
-    InstructorController.saveScore);
+    InstructorController.getListStudentToEnterScore
+);
 
 router.get('/getMySchedules/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getMySchedules);
+    InstructorController.getMySchedules
+);
 
 router.get('/',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.findIdInstructor);
+    InstructorController.findIdInstructor
+);
+
+
+router.post('/assignLessionForClass',
+    FormatController.authenticate,
+    FormatController.authorize(["instructor","admin"]),
+    InstructorController.assignLessionForClass
+);
+
+router.put('/saveScore',
+    FormatController.authenticate,
+    FormatController.authorize(["instructor","admin"]),
+    InstructorController.saveScore
+);
 
 
 export default router;

@@ -60,8 +60,7 @@ const columns: TableProps<Lession>['columns'] = [
   {
     title: 'Ngày Giao',
     key: 'createAt',
-    dataIndex: 'createAt',
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dataIndex: 'createAt', 
     render: (value: any) => {
     if (!value?._seconds) return "";
     const date = new Date(value._seconds * 1000 + value._nanoseconds / 1000000);

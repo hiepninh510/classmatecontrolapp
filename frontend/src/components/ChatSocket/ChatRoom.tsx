@@ -32,8 +32,10 @@ export function ChatRooms({idUser}:IdUserProp){
                 let res:any ;
                 if(role === "student") {
                       res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chats/messagesStudent`,value);
-                } else {
+                } else if(role === "instructor") {
                       res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chats/messages`,value);
+                } else if(role === "admin"){
+                  res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/admin/messages`)
                 }
                 if(res.data.success) setChatRoom(res.data.chatRooms ?? []);
                 if(idUser){
