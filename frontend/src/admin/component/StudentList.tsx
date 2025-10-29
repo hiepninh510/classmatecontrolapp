@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Form, Table } from 'antd';
 import type { TableProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {useOpenNotification} from '../../hooks/Notification/notification.tsx';
 import { DeleteOutlined } from '@ant-design/icons';
 // import { useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ export default function StudentList(){
     const [searchText,setSearchText] = useState<string>("");
     const [classFilters,setClassFillter] = useState< {text: string; value: string}[]>([]);
     const [facultyFilters,setfacultyFilters] = useState<{text:string; value:string}[]>([]);
-    const columns: TableProps<StudentWithClassAndFaculty>['columns'] = [
+    const columns: TableProps<StudentWithClassAndFaculty>['columns'] = useMemo(()=>[
       {
         title: 'Tên Sinh Viên',
         dataIndex: 'name',
@@ -84,10 +84,10 @@ export default function StudentList(){
         
         ),
       },
-    ];
+  ],[]);
 
-  useEffect(() => {
-    const fetchStudent = async () => {
+
+    const fetchStudent = useCallback( async () => {
       try {
         setLoading(true);
         const res = await adminAPI.getAllStudent();
@@ -114,8 +114,9 @@ export default function StudentList(){
       } finally {
         setLoading(false);
       }
-    };
+    },[]);
 
+  useEffect(() => {
     fetchStudent();
   }, []);
 
@@ -140,7 +141,7 @@ export default function StudentList(){
     setIsModalOpen(true);
   }
 
-  const handleOk = async ()=>{
+  const handleOk = useCallback(async ()=>{
     try {
         const values = await form.validateFields();
         if(editingStudent){
@@ -162,19 +163,18 @@ export default function StudentList(){
         console.error(error);
         openNotification('error',error.response.data.message)
     }
-  }
+  },[]); 
 
 
   const openDeleteModal = (student: StudentWithClassAndFaculty) => {
   setStudentToDelete(student);
   setIsDeleteOpen(true);
 };
-  const handleDeleteOk = async () => {
+  const handleDeleteOk = useCallback(  async () => {
     if (!studentToDelete) return;
 
     try {
       const res = await studentAPI.delete(studentToDelete.phoneNumber);
-      //axios.delete(`${import.meta.env.VITE_BACKEND_URL}/student/deleteStudent/${studentToDelete.phoneNumber}`);
       if (res.data.success) {
         setStudent(prev => prev.filter(s => s.id !== studentToDelete.id));
         openNotification('success', 'Xóa sinh viên thành công');
@@ -187,7 +187,8 @@ export default function StudentList(){
     } finally {
       setIsDeleteOpen(false);
     }
-  };
+  },[]);
+
 
   const onSearch:SearchProps['onSearch'] = (value)=>{
     setSearchText(value);

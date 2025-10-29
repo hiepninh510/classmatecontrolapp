@@ -14,7 +14,6 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const { id } = useAuth();
 
-  // 🔹 Connect socket 1 lần khi user có id
   useEffect(() => {
     if (!id) return;
 
@@ -43,7 +42,6 @@ export function ChatWidget() {
     };
   }, [id]);
 
-  // 🔹 Khi Drawer mở, chỉ emit để lấy lịch sử chat
   useEffect(() => {
     if (open && id) {
       socket.emit("chatWithAdmin", id);

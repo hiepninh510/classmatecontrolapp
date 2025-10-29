@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Table, Tag, Button, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { Faculty } from "../../models/locationInterface";
@@ -28,7 +28,7 @@ export function Faculties() {
     useState<FacultiesForAdmin | null>(null);
   const { openNotification, contextHolder } = useOpenNotification();
 
-  const fetchFacultiesForAdmin = async () => {
+  const fetchFacultiesForAdmin = useCallback(async () => {
     try {
       setLoading(true);
       const res = await adminAPI.getFacultiesForAdmin();
@@ -40,7 +40,7 @@ export function Faculties() {
     } finally {
       setLoading(false);
     }
-  };
+  },[]);
 
   useEffect(() => {
     fetchFacultiesForAdmin();
@@ -51,7 +51,7 @@ export function Faculties() {
     setOpenFormModal(true);
   };
 
-  const handleSave = async (values: any) => {
+  const handleSave = useCallback(async (values: any) => {
     try {
       setModalLoading(true);
       if (selectedFaculty) {
@@ -75,14 +75,14 @@ export function Faculties() {
     } finally {
       setModalLoading(false);
     }
-  };
+  },[]);
 
   const handleOpenDelete = (record: FacultiesForAdmin) => {
     setSelectedFaculty(record);
     setOpenDeleteModal(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       setModalLoading(true);
       const res = await adminAPI.deleteFaculty(selectedFaculty?.id as string);
@@ -98,9 +98,9 @@ export function Faculties() {
     } finally {
       setModalLoading(false);
     }
-  };
+  },[]);
 
-  const columns: ColumnsType<FacultiesForAdmin> = [
+  const columns: ColumnsType<FacultiesForAdmin> = useMemo(()=> [
     { title: "Mã khoa", dataIndex: "code", key: "code", width: 120 },
     { title: "Tên khoa", dataIndex: "name", key: "name", width: 200 },
     { title: "Trưởng khoa", dataIndex: "dean", key: "dean", render: (dean) => dean || <i>Chưa có</i> },
@@ -125,7 +125,7 @@ export function Faculties() {
         </Space>
       ),
     },
-  ];
+  ],[]);
 
   return (
     <>

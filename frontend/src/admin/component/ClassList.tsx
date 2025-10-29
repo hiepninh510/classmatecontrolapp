@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { Faculty, Classes } from "../../models/locationInterface";
 import { adminAPI } from "../AdminServices";
 import { useOpenNotification } from "../../hooks/Notification/notification";
@@ -91,7 +91,7 @@ export function Classes(){
 // ];
 
 
-    const fetchClasses = async()=>{
+    const fetchClasses = useCallback(async()=>{
         try {
             setLoading(true);
             const res = await adminAPI.getAllClass();
@@ -104,7 +104,7 @@ export function Classes(){
         } finally{
             setLoading(false);
         }
-    }
+    },[]); 
 
     useEffect(()=>{
         fetchClasses();
@@ -143,12 +143,12 @@ export function Classes(){
     };
 
 
-    const handelCancel =()=>{
+    const handelCancel = useCallback(()=>{
         form.resetFields()
         setIsModalOpen(false);
-    }
+    },[]);
 
-    const handleOK = async()=>{
+    const handleOK = useCallback(async()=>{
         const values = await form.validateFields();
         if(!values || Object.keys(values).length === 0) openNotification("error","Nhập thông tin đầy đủ");
         const res = await adminAPI.addClass(values);
@@ -157,7 +157,7 @@ export function Classes(){
             setIsModalOpen(false);
             openNotification("success",res.data.message);
         }else openNotification("warning",res.data.message);
-    }
+    },[]); 
 
     return(
         <>

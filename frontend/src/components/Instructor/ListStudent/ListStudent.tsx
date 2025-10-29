@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Form, Table } from 'antd';
 import type { TableProps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {useOpenNotification} from '../../../hooks/Notification/notification.tsx';
 import { BookOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -35,7 +36,8 @@ export default function ListStudent(){
     const [assignForClass,setassignForClass] = useState<AssignLessionForClass[]>([]);
     const [classFilters,setClassFillter] = useState< {text: string; value: string}[]>([]);
 
-    const columns: TableProps<Student>['columns'] = [
+    const columns: TableProps<Student>['columns'] = useMemo(()=> 
+        [
       {
         title: 'Tên Sinh Viên',
         dataIndex: 'name',
@@ -76,7 +78,8 @@ export default function ListStudent(){
         
         ),
       },
-    ];
+    ],[]);
+
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -102,7 +105,7 @@ export default function ListStudent(){
     fetchStudent();
   }, [id]);
 
-  const onOpenChat = async (studentId: string) => {
+  const onOpenChat = useCallback(async (studentId: string)=>{
   try {
     const phoneNumber = localStorage.getItem('phoneNumber');
     const res = await studentAPI.chats({phoneNumber,studentId});
@@ -115,15 +118,14 @@ export default function ListStudent(){
     console.error(error);
     openNotification("error", "Lỗi khi mở phòng chat");
   }
-};
-
+},[]);
   const openModal = (student?:Student) =>{
     setEditingStudent(student|| null);
     form.setFieldsValue(student || { name: '', phoneNumber: '', email: '' });
     setIsModalOpen(true);
   }
 
-  const handleOk = async ()=>{
+  const handleOk = useCallback( async ()=>{
     try {
         const values = await form.validateFields();
         if(editingStudent){
@@ -148,7 +150,7 @@ export default function ListStudent(){
     } catch (error) {
         console.error(error);
     }
-  }
+  },[])
 
   const openAssignModal = async (student: Student) => {
     if(id){
@@ -170,7 +172,7 @@ export default function ListStudent(){
     setIsAssignOpen(true);
   };
 
-  const handleAssignOk = async () => {
+  const handleAssignOk = useCallback(async () => {
     try {
       const values = await form.validateFields();
       const payload = {
@@ -201,7 +203,7 @@ export default function ListStudent(){
       console.error(error);
       openNotification("error", "Lỗi khi giao bài");
     }
-  };
+  },[]); 
 
   const openAssignForClass = async ()=>{
     try {
@@ -229,7 +231,7 @@ export default function ListStudent(){
     }
   }
 
-  const handelOkAssignForClass = async()=>{
+  const handelOkAssignForClass =  useCallback(async()=>{
     try {
       const values = await form.validateFields();
       const payload ={
@@ -246,14 +248,14 @@ export default function ListStudent(){
     } catch (error) {
       console.log(error);
     }
-  }
+  },[]);
 
 
   const openDeleteModal = (student: Student) => {
   setStudentToDelete(student);
   setIsDeleteOpen(true);
 };
-  const handleDeleteOk = async () => {
+  const handleDeleteOk = useCallback( async () => {
     if (!studentToDelete) return;
 
     try {
@@ -271,7 +273,7 @@ export default function ListStudent(){
     } finally {
       setIsDeleteOpen(false);
     }
-  };
+  },[]);
 
   const onSearch:SearchProps['onSearch'] = (value)=>{
     setSearchText(value);

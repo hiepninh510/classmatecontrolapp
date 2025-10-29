@@ -1,7 +1,7 @@
 import axios from "../../api/api.tsx";
 import Timetable from "./TimeTable.tsx"
 import { startOfWeek, format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Schedule } from "../../models/locationInterface.tsx";
 import { useAuth } from "../../hooks/ThemeContext.tsx";
 
@@ -10,7 +10,7 @@ export default function Schedules(){
   const {id,role} = useAuth();
   const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-  const fetchSchedules = async(id:string,role:string)=>{
+  const fetchSchedules = useCallback( async(id:string,role:string)=>{
     if(role === "instructor"){
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getMySchedules/${id}`);
       if(res.data.success){
@@ -23,11 +23,11 @@ export default function Schedules(){
         setSchedules(res.data.scheduleData);
       }
     }
-  }
+  },[]);
 
   useEffect(() => {
   fetchSchedules(id as string, role as string);
-  }, [id,role]);
+  }, [fetchSchedules, id, role]);
 
   return (
     <div>

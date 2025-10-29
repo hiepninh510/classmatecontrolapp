@@ -62,7 +62,7 @@ export function NotificationProvider ({children}:{children:ReactNode}){
 
     useEffect(()=>{
         fetchNotifications()
-        console.log("notifications",notifications)
+        // console.log("notifications",notifications)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 

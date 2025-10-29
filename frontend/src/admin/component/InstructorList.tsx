@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Form, Table } from "antd";
 import type { TableProps } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Search, { type SearchProps } from "antd/es/input/Search";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useOpenNotification } from "../../hooks/Notification/notification.tsx";
@@ -33,7 +33,7 @@ export default function InstructorList() {
   const [subjectOptions,setSubjectOptions] = useState<Subject[]>([]);
   const [facultyOptions,setfacultyOptions] = useState<Faculty[]>([])
 
-  const columns: TableProps<ListInstructorForAdmin>["columns"] = [
+  const columns: TableProps<ListInstructorForAdmin>["columns"] = useMemo(()=> [
     {
       title: "Tên Giảng Viên",
       dataIndex: "name",
@@ -109,9 +109,9 @@ export default function InstructorList() {
         </div>
       ),
     },
-  ];
+  ],[]);
 
-  const fetchClassAndSubjectAndFacultys = async()=>{
+  const fetchClassAndSubjectAndFacultys = useCallback(async()=>{
     try {
       const resClass = await adminAPI.getAllClass();
       if(resClass.status) setClassOptions(resClass.data.classes);
@@ -123,9 +123,9 @@ export default function InstructorList() {
       console.log(error);
       openNotification("error",error.response.data.message)
     }
-  }
+  },[]); 
 
-   const fetchInstructors = async () => {
+   const fetchInstructors = useCallback(async () => {
       try {
         setLoading(true);
         const res = await adminAPI.getAllInstructors();
@@ -162,7 +162,7 @@ export default function InstructorList() {
       } finally {
         setLoading(false);
       }
-    };
+    },[]);
 
   useEffect(() => {
     fetchInstructors();
@@ -187,7 +187,7 @@ export default function InstructorList() {
     setIsModalOpen(true);
   };
 
-  const handleOk = async () => {
+  const handleOk = useCallback(async () => {
     try {
       const values = await form.validateFields();
       if (editingInstructor) {
@@ -213,14 +213,14 @@ export default function InstructorList() {
       console.error(error);
       openNotification("error",error.response.data.message);
     }
-  };
+  },[]);
 
   const openDeleteModal = (instructor: ListInstructorForAdmin) => {
     setInstructorToDelete(instructor);
     setIsDeleteOpen(true);
   };
 
-  const handleDeleteOk = async () => {
+  const handleDeleteOk = useCallback(async () => {
     if (!instructorToDelete) return;
     try {
       const res = await adminAPI.deleteInstructor(instructorToDelete.id);
@@ -236,7 +236,7 @@ export default function InstructorList() {
     } finally {
       setIsDeleteOpen(false);
     }
-  };
+  },[]);
 
   const handleDeleteCancel = () => setIsDeleteOpen(false);
 

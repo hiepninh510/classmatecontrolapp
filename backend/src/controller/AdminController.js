@@ -1010,8 +1010,8 @@ export async function updateSubject(req,res) {
     try {
         const {id} = req.params;
         const values = req.body;
-        console.log("id",id);
-        console.log("values",values)
+        // console.log("id",id);
+        // console.log("values",values)
         const subjectRef = db.collection("subjects").doc(id);
         const subjectData = await subjectRef.get();
         if(!subjectData.exists) return res.status(404).json({success:false,message:"Subjects is not existsing"});

@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { Schedule } from "../../models/locationInterface";
 import { parse, format, addDays } from "date-fns";
+import { useMemo } from "react";
 
 interface TimetableProps {
   schedules: Schedule[];
@@ -40,7 +42,7 @@ export default function Timetable({ schedules, weekStart }: TimetableProps) {
   ];
 
   // Columns cho Ant Design Table
-  const columns: ColumnsType<any> = [
+  const columns: ColumnsType<any> = useMemo(()=>[
     { title: "Ca / Thời gian", dataIndex: "period", key: "period", width: 120 },
     ...daysOfWeek.map(day => ({
       title: format(parse(day, "yyyy-MM-dd", new Date()), "EEE dd/MM"),
@@ -56,12 +58,12 @@ export default function Timetable({ schedules, weekStart }: TimetableProps) {
             <div style={{ fontSize: 10 }}>Thời gian: {cell.timeFrame}</div>
           </div>
         ) : null;
-      },
+      }, 
     })),
-  ];
+  ],[daysOfWeek]);
 
   // Dữ liệu rows: mỗi row = 1 ca
-  const dataSource = periods.map(p => {
+  const dataSource = useMemo(()=>periods.map(p => {
     const row: any = { key: p.id, period: `${p.label} (${p.time})` };
 
     daysOfWeek.forEach(day => {
@@ -73,7 +75,7 @@ export default function Timetable({ schedules, weekStart }: TimetableProps) {
     });
 
     return row;
-  });
+  }),[periods, daysOfWeek, fillteredSchedules]) ;
 
   return <Table columns={columns} dataSource={dataSource} pagination={false} bordered />;
 }

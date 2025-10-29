@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ScoreStudent, ClassStudent, Subject, Score } from "../../models/locationInterface";
 import { studentAPI } from "./ListStudent/InstructorAPI";
 import { Button, Input, Select, Table } from "antd";
@@ -7,7 +8,7 @@ import { useAuth } from "../../hooks/ThemeContext";
 import { useOpenNotification } from "../../hooks/Notification/notification";
 const { Option } = Select;
 
-// ---------------- ScoreInput Component ----------------
+// ScoreInput Component 
 type ScoreInputProps = {
   backendValue?: string; // giá trị *thô* từ backend (đúng là backend hay không)
   editedValue?: string; // giá trị local khi backend không có
@@ -77,25 +78,25 @@ export default function Score() {
   const [editedScores, setEditedScores] = useState<Record<string, Partial<Score>>>({});
 
   // Fetch data
-  const fetchSubject = async (id: string) => {
+  const fetchSubject = useCallback(async (id: string) => {
     try {
       const res = await studentAPI.getSubjects(id);
       if (res.data.success) setSubjects(res.data.dataSubjects);
     } catch (error) {
       console.log(error);
     }
-  };
+  },[]);
 
-  const fetchClass = async (id: string) => {
+  const fetchClass = useCallback(async (id: string) => {
     try {
       const res = await studentAPI.getAllClass(id);
       if (res.data.success) setClassRoom(res.data.dataClass);
     } catch (error) {
       console.log(error);
     }
-  };
+  },[]);
 
-  const handleSroce = async () => {
+  const handleSroce = useCallback(async () => {
     try {
       const data = { classId: selectedClass, subjectId: selectedSubject, id };
       const res = await studentAPI.getListStudentToEnterScore(data);
@@ -110,7 +111,7 @@ export default function Score() {
     } catch (error) {
       console.log(error);
     }
-  };
+  },[]);
 
   // Chỉ cập nhật editedScores (không tính total ở đây — tính ở blur)
   const handleChangeScore = (
@@ -127,7 +128,7 @@ export default function Score() {
   };
 
   // Khi input blur: tính total dựa trên edited (nếu có) hoặc fallback backend
-  const handleBlurScore = (studentId: string) => {
+  const handleBlurScore = useCallback((studentId: string) => {
     setEditedScores((prev) => {
       const current = { ...(prev[studentId] || {}) }; // clone
       // lấy giá trị từ edited nếu có, nếu không thì fallback sang backend
@@ -141,16 +142,15 @@ export default function Score() {
       if (!Number.isNaN(mid) && !Number.isNaN(final)) {
         current.total = (mid * 0.4 + final * 0.6).toFixed(2);
       } else {
-        // nếu không đủ 2 giá trị thì clear total (tuỳ ý: mình để là không đổi)
         // current.total = current.total ?? backend.total ?? "";
       }
 
       return { ...prev, [studentId]: current };
     });
-  };
+  },[]);
 
   // Save score: merge editedScores vào payload (edited override backend)
-  const handleSaveScore = async () => {
+  const handleSaveScore = useCallback(async () => {
     try {
       const payload = scoreStudent.map((s) => {
         const backendScore = s.score?.[0] ?? { midterm: "", final: "", total: "", phase: "", subjectId: s.subjectId };
@@ -178,7 +178,6 @@ export default function Score() {
       const res = await studentAPI.saveScore(payload);
       if (res.data.success) {
         openNotification("success", "Đã lưu điểm thành công");
-        // reload hoặc fetch lại danh sách để reflect backend state
         setTimeout(() => {
           handleSroce();
         },700);
@@ -190,10 +189,10 @@ export default function Score() {
     } catch (error) {
       console.log(error);
     }
-  };
+  },[]);
 
   // Columns
-  const columns = [
+  const columns =useMemo(()=>[
     { title: "STT", key: "stt", render: (_: any, __: any, index: number) => index + 1, width: 70 },
     { title: "Tên", dataIndex: "name", key: "name" },
     { title: "Lớp", dataIndex: "className", key: "className" },
@@ -253,7 +252,7 @@ export default function Score() {
         },
       ],
     },
-  ];
+  ],[]);
 
   useEffect(() => {
     fetchSubject(id as string);
