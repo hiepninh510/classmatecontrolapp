@@ -24,7 +24,7 @@ export async function creatNotification(req,res){
         const {role,phone,notification} = req.body;
         // console.log("roler",role);
         // console.log("phone",phone);
-        // console.log("notification",notification);
+        console.log("notification",notification.userId);
         const phoneNumber =normalPhoneNumber(phone);
         if(!notification || Object.keys(notification).length === 0 || !phoneNumber) return res.status(400).json({success:false,message:"Creat notification not success!"});
         let senderDoc;
@@ -123,28 +123,31 @@ export async function createNotificationFromAdmin(req,res) {
 export async function getNotifications(req,res) {
     try {
         const {role,userId} = req.query;
+        // console.log("role",role);
+        // console.log("userId",userId);
         if(!role && !userId) return res.status(400).json({success:false,message:"Role or UserId not exist!!!!"});
-        let dataNotiSnap = null;
-        switch (role) {
-            case "student":
-                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
-                break;
-            case "instructor":
-                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
-                break;
+        let dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
+        // switch (role) {
+        //     case "student":
+        //         dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
+        //         break;
+        //     case "instructor":
+        //         dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
+        //         break;
             
-            case "admin":
-                dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
-                break;
-            default:
-                break;
-        }
+        //     case "admin":
+        //         dataNotiSnap = await db.collection("notifications").where("userId",'==',userId).where("isDelete",'==',false).get();
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         const notifications = dataNotiSnap.docs.map(doc =>({
             id:doc.id,
             ...doc.data()
         }));
 
+        // console.log("notifications",notifications);
         return res.status(200).json({success:true,notifications});
         
     } catch (error) {
@@ -165,8 +168,8 @@ export async function getIdUserToNotification(req,res){
         if(!roomSnap.exists) return res.status(400).json({success:false,message:"Chat Room not found!!!"});
         const participants = roomSnap.data().participants;
         let clientSnap = null;
-        let clientId = null;
-        switch (role) {
+        let clientId =  null;
+        switch(role){
             case "student":
                 clientSnap = await db.collection("students").where("phoneNumber","==",phoneNumber).get();
                 clientId = clientSnap.docs[0].id;

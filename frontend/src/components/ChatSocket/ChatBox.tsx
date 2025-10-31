@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "../../api/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import socket from "./socket";
 import { useAuth } from "../../hooks/ThemeContext";
 import { notificationService } from "../../hooks/Notification/notificationService";
@@ -23,11 +23,9 @@ export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
   const [senderId, setSenderId] = useState("");
   const [userId,setUserId] = useState<string|null>(null);
   const {role} = useAuth();
-  useEffect(() => {
-    socket.connect();
-    socket.emit("joinRoom", roomId);
+  const socketRef = useRef<any>(null);
 
-    const fetchMessages = async () => {
+    const fetchMessages = useCallback(async () => {
       try {
         const phoneNumber = localStorage.getItem('phoneNumber');
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/chats/messages/${roomId}/${phoneNumber}`);
@@ -39,21 +37,32 @@ export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
       } catch (err:any) {
         console.error(err);
       }
-    };
+    },[roomId]);
+
+  useEffect(()=>{
+    socketRef.current = socket;
+    socketRef.current.connect();
+
+    return ()=>{
+      socketRef.current.disconnect();
+    }
+  },[])
+  useEffect(() => {
+    if(!socketRef.current) return;
+    socketRef.current.emit("joinRoom", roomId);
 
     fetchMessages();
 
     // Nhận tin nhắn realtime
-    socket.on("newMessage", (msg: Message) => {
+    socketRef.current.on("newMessage", (msg: Message) => {
       setMessages(prev => [...prev, msg]);
     });
 
-    return () => {
-      socket.off("newMessage");
-      socket.disconnect();
-    };
-   
-  }, [roomId]);
+    return ()=>{
+      socketRef.current.off("newMessage");
+    }
+
+  }, [fetchMessages, roomId]);
 
   useEffect(()=>{
     const fetchIdReceiver = async ()=>{
@@ -84,7 +93,7 @@ export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
 
     const creatNotifi = await notificationService.creatNotification(data);
     if(creatNotifi?.success) {
-          socket.emit("sendMessage", { roomId, senderId, text: newMessage });
+          socketRef.current.emit("sendMessage", { roomId, senderId, text: newMessage });
           setNewMessage("")
     }
     

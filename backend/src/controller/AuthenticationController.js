@@ -68,12 +68,12 @@ export async function validateAccessCode(req,res) {
             // const userDoc =  //await db.collection("users").where('phoneNumber','==',phoneNumber).get();
             const typeUser = data.role ||'instructor'
             let id= doc.docs[0].id;
-            // if(typeUser === "instructor"){
-            //     id = doc.docs[0].id
-            // } else {
-            //     const studentSnap = await db.collection("students").where("phoneNumber",'==',data.phoneNumber).get();
-            //     id = studentSnap.docs[0].id
-            // }
+            if(typeUser === "instructor"){
+                id = doc.docs[0].id
+            } else {
+                const studentSnap = await db.collection("students").where("phoneNumber",'==',data.phoneNumber).get();
+                id = studentSnap.docs[0].id
+            }
             const userName = data.name;
             //console.log(formatPhoneNumber(userDoc.docs[0].data().phoneNumber));
             const payload = {userId:id,role:typeUser};
@@ -98,16 +98,16 @@ export async function defaultLogin(req,res) {
         if(!match) return res.status(400).json({success:false,message:"Password isn't true!!!!"});
 
         const typeUser = userSnap.docs[0].data().role;
-        let id= userSnap.docs[0].id;
-        // if(typeUser ==="instructor"){
-        //     id = userSnap.docs[0].id
-        // } else if(typeUser === "student"){
-        //     const studentSnap = await db.collection("students").where("phoneNumber",'==',userSnap.docs[0].data().phoneNumber).get();
-        //     if(studentSnap.empty) return res.status(400).json({success:false,message:"Student doesn't exists!!!"});
-        //     id = studentSnap.docs[0].id
-        // } else{
-        //     id = userSnap.docs[0].id
-        // }
+        let id= null;
+        if(typeUser ==="instructor"){
+            id = userSnap.docs[0].id
+        } else if(typeUser === "student"){
+            const studentSnap = await db.collection("students").where("phoneNumber",'==',userSnap.docs[0].data().phoneNumber).get();
+            if(studentSnap.empty) return res.status(400).json({success:false,message:"Student doesn't exists!!!"});
+            id = studentSnap.docs[0].id
+        } else{
+            id = userSnap.docs[0].id
+        }
         const userName = userSnap.docs[0].data().name;
         const payload = {userId:id,role:typeUser};
         const token = jwt.sign(payload,process.env.JWT_SECRET,{ expiresIn: "1h" });

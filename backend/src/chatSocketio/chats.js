@@ -33,7 +33,7 @@ export async function openChatRoom(req, res) {
           };
         })
       );
-      console.log(chatRooms);
+      //  
     return res.status(200).json({ success: true, chatRooms,senderId: idUser});
 
   } catch (error) {

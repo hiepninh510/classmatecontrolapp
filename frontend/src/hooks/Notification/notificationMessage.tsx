@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import socket from "../../components/ChatSocket/socket"
 import { useAuth } from "../ThemeContext"
 import axios from "../../api/api"
@@ -31,18 +32,20 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export function NotificationProvider ({children}:{children:ReactNode}){
     const [notifications,setNotification] = useState<Notifications[]>([]);
     const {role,id} = useAuth();
+    const socketRef = useRef<any>(null);
     useEffect(()=>{
-        socket.connect();
-        socket.emit("joinNoticationRoom",id);
-        socket.on("newNotification",(data:Notifications)=>{
+        socketRef.current = socket;
+        socketRef.current.connect();
+        socketRef.current.emit("joinNoticationRoom",id);
+        socketRef.current.on("newNotification",(data:Notifications)=>{
             setNotification(prev=>[...prev,data])
         })
         return ()=>{
-            socket.off("newNotification");
+            socketRef.current.off("newNotification");
         }
     },[id]);
 
-    const fetchNotifications =async ()=>{
+    const fetchNotifications = useCallback(async ()=>{
             try {
                const userId = id;
                const values = {
@@ -58,15 +61,15 @@ export function NotificationProvider ({children}:{children:ReactNode}){
             } catch (error) {
                 return error;
             }
-        }
+        },[id, role]);
+    
 
     useEffect(()=>{
         fetchNotifications()
         // console.log("notifications",notifications)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[])
+    },[fetchNotifications])
 
-    const handleDeleteOneNotifiction = async (id:string)=>{
+    const handleDeleteOneNotifiction = useCallback(async (id:string)=>{
         try {
             if(id){
                 const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/notification/deleteOneNotification`,{params:{id}});
@@ -77,9 +80,9 @@ export function NotificationProvider ({children}:{children:ReactNode}){
         } catch (error) {
             console.log(error);
         }
-    }
+    },[]);
 
-    const handleRead = async (id:string) =>{
+    const handleRead = useCallback(async (id:string) =>{
         try {
             if(id){
                 const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification`,{id});
@@ -90,9 +93,10 @@ export function NotificationProvider ({children}:{children:ReactNode}){
         } catch (error) {
             console.log(error)
         }
-    }
+    },[]);
 
-    const markAllNotification = async () =>{
+
+    const markAllNotification =useCallback(async () =>{
         try {
             const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification/readAllNotifications`,{id});
             if(res.data.success) {
@@ -102,10 +106,11 @@ export function NotificationProvider ({children}:{children:ReactNode}){
             console.log(error);
         }
 
-    }
+    },[id]);
+     
 
     const clearNotifications = () => setNotification([]);
-    const unreadCount = notifications.filter(item => !item.isRead).length;
+    const unreadCount = useMemo(()=>notifications.filter(item => !item.isRead).length,[notifications]);
 
     return (
         <>

@@ -11,7 +11,8 @@ export const notificationService = {
                     isRead:false,
                     creatAt:new Date(),
                     upDate:new Date(),
-                    type:"assignment"
+                    type:"assignment",
+                    isDelete:false,
                     }
                     const notifiData = {
                         role:data.role,
@@ -29,7 +30,8 @@ export const notificationService = {
                     isRead:false,
                     creatAt:new Date(),
                     upDate:new Date(),
-                    type:"message"
+                    type:"message",
+                    isDelete:false
 
                 }
                 const notifiData = {
