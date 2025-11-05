@@ -10,6 +10,17 @@ const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 // const client_Twilio = twilio("AC60e69e93dc5279eb872349799d794334","d506d98252b98049e426ed3a8be9bf1d");
 const client_Twilio = twilio(TWILIO_SID,TWILIO_AUTH_TOKEN);
+
+export async function creatToken(req,res) {
+    const {id,typeUser} = req.body;
+    console.log(id)
+    if(!id && !typeUser) return res.status(400).json({success:false,message:"Id or TypeUser is not existing "});
+    const payload = {userId:id,role:typeUser};
+    const token = jwt.sign(payload,process.env.JWT_SECRET,{ expiresIn: "1h" });
+    return res.status(200).json({success:true,token});
+}
+
+
 export async function createAccessCode(req,res) {
     try {
         const {phoneNumber} = req.body;

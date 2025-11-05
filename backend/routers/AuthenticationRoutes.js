@@ -9,6 +9,7 @@ router.post('/login',FormatController.validatePhoneNumber,AuthenticationControll
 router.post('/forgot-password',FormatController.convertEmailToPhoneNumber,StudentController.loginEmail);
 router.delete('/deleteAccode',AuthenticationController.deleteAccode);
 router.post('/forgetPassWord',AuthenticationController.forgetPassWord);
+router.post('/creatToken',AuthenticationController.creatToken);
 router.put('/changePassWord',AuthenticationController.changePassWord);
 router.post('/',FormatController.verifyRecaptcha,AuthenticationController.defaultLogin);
 export default router;
