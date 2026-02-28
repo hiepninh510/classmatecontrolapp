@@ -24,7 +24,7 @@ router.get('/getAllRoom',
     AdminController.getAllRoom
 );
     
-router.get('/getAllClass',
+router.get('/all-classes',
     FormatController.authenticate,
     FormatController.authorize(['admin']),
     AdminController.getAllClasses

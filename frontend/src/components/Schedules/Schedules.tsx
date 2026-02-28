@@ -12,7 +12,7 @@ export default function Schedules(){
 
   const fetchSchedules = useCallback( async(id:string,role:string)=>{
     if(role === "instructor"){
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getMySchedules/${id}`);
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/mySchedules/${id}`);
       if(res.data.success){
         // console.log(res.data.scheduleData);
         setSchedules(res.data.scheduleData);

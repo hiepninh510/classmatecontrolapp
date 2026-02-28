@@ -3,6 +3,9 @@ import { formatPhoneNumber,normalPhoneNumber } from './formatController.js';
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import * as studentServices from '../services/studentServices.js'
+import * as scheduleServices from '../services/scheduleServices.js'
+import * as scoreServices from "../services/scoreServices.js"
 
 export async function addStudent(req,res) {
     try {
@@ -10,59 +13,9 @@ export async function addStudent(req,res) {
         if(!name || !email){
             return res.status(400).json({success:false,message:'Nhập đầy đủ thông tin'})
         }
-        const isStudentExisting = await db.collection('students')
-        .where('phoneNumber','==',phoneNumber)
-        .where('email','==',email)
-        .get();
-
-        if(!isStudentExisting.empty){
-            return res.status(400).json({success:false,message:'Sinh viên đã tồn tại'});
-        }
-        const token = jwt.sign({email,phoneNumber},
-            process.env.JWT_SECRET,
-            {expiresIn: "24h"}
-        );
-        await db.collection('users').add({
-            code,
-            name,
-            phoneNumber,
-            email,
-            password,
-            role:'student',
-            deleted:false,
-            createAt:new Date()
-        })
-        await db.collection('students').add({
-            name,
-            phoneNumber,
-            email,
-            status:"pending",
-            token,
-            createAt:new Date(),
-            lessions:[]
-        })
-
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
-        const setupLink = `${process.env.FRONTED_PATH}/setup?token=${token}`;
-        await transporter.sendMail({
-            from:process.env.EMAIL_USER,
-            to: email,
-            subject:"Setup Your Student Account",
-            html:`<p>Hello ${name}</p>
-                <p>Mã Số Sinh Viên của bạn là :${code}</p>
-                <p>Lớp: ${className}</p>
-                <p>Your instructor has added you to the classroom system.</p>
-                <p>Please click the link below to set up your account:</p>
-                <a href="${setupLink}">${setupLink}</a>
-                <p>This link will expire in 24 hours.</p>`
-        });
-        return res.status(201).json({success:true,message:'Thêm học sinh thành công'});
+        const isAddStudent = await studentServices.addStudent(name,phoneNumber,email,code,classId,className);
+        if(!isAddStudent.success) return res.status(400).json({success:false,message:isAddStudent.message});
+        return res.status(201).json({success:true,message:isAddStudent.message});
     } catch (error) {
         console.log(error);
         return res.status(500).json({success:false,message:"Thêm sinh viên không thành công"});
@@ -104,36 +57,9 @@ export async function getStudentList(req,res) {
     try {
         const {id} = req.params;
         if(!id) return res.status(400).json({success:false,message:"Id not exist!!!"});
-        const instructorSnap = await db.collection("users").doc(id).get();
-        if(!instructorSnap.exists) return res.status(404).json({success:false,message:"Instructor not found!!!"});
-
-        const classId = instructorSnap.data().classId;
-        // console.log("hello",classId);
-
-        if(!Array.isArray(classId) || classId.length === 0) return res.status(200).json({ student: [] });
-        
-
-        const listClassSnap = await db.collection("class")
-        .where(admin.firestore.FieldPath.documentId(),'in',classId.slice(0, 10))
-        .get()
-
-        const classMap = new Map(listClassSnap.docs.map((doc) => [doc.id,doc.data().name]));
-
-        const StudentList = await db.collection('students')
-        .where('deleted','==',false)
-        .where("classId","in",classId.slice(0,10))
-        .get();
-        const student = StudentList.docs.map((doc) => {
-        const data = doc.data();
-            return {
-                id: doc.id,
-                name: data.name,
-                phoneNumber: formatPhoneNumber(data.phoneNumber),
-                email: data.email,
-                classRoom: classMap.get(data.classId) || null,
-            };
-    });
-        return res.status(200).json({student});
+        const data = await studentServices.getStudentList(id);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.message});
+        return res.status(data.status).json({success:data.success,student:data.student});
     } catch (error) {
         console.log(error)
         return res.status(500).json({success:false,message:"Lỗi tải danh sách student"});
@@ -143,24 +69,9 @@ export async function getStudentList(req,res) {
 export async function getOneStudent(req,res) {
     try {
         const phoneNumber = req.params.phone;
-        const phoneFormated = normalPhoneNumber(phoneNumber);
-        const studentQuery = await db.collection('students').where('phoneNumber','==',phoneFormated).get();
-        if(studentQuery.empty) return res.status(404).json({success:false,massage:'Student not found'});
-        const student = studentQuery.docs[0].data();
-        const listLesion = (student.lessions || []).map(item =>({
-            title:item.title,
-            description:item.description,
-            createAt:item.creatAt
-        }))
-        return res.status(200).json({
-            success:true,
-            data:{
-                name:student.name,
-                phoneNumber:formatPhoneNumber(student.phoneNumber),
-                email:student.email,
-                lessions:listLesion
-            }
-        })
+        const data = await studentServices.getOneStudent(phoneNumber);
+        if(!data.success) return res.status(data.status).json({success:data.success,massage:data.massage});
+        return res.status(data.status).json({success:data.status,data:data.data});
     } catch (error) {
         console.log(error)
          return res.status(500).json({success:false,message:"Lỗi tìm kiếm sinh viên"});
@@ -170,29 +81,9 @@ export async function getOneStudent(req,res) {
 export async function updateStudent(req,res) {
     try {
         const phone = req.params.phone;
-        const phoneFormated = normalPhoneNumber(phone);
-        const infNeedUpdate = {
-            name:req.body.name,
-            phoneNumber:normalPhoneNumber(req.body.phoneNumber),
-            email:req.body.email
-        }
-        const studentQuery = await db.collection('students').where('phoneNumber','==',phoneFormated).get();
-        const userQuery = await db.collection('users').where('phoneNumber','==',phoneFormated).get();
-        const accessCodeQuery = await db.collection('accessCodes').where('phoneNumber','==',phoneFormated).get();
-        if(studentQuery.empty)return res.status(404).json({seccess:false,message:'Student not found'});
-        if(userQuery.empty) return res.status(404).json({seccess:false,message:'User not found'});
-        if(accessCodeQuery.empty) return res.status(404).json({seccess:false,message:'AccessCode not found'});
-        await studentQuery.docs[0].ref.update(infNeedUpdate);
-        await userQuery.docs[0].ref.update(infNeedUpdate);
-        await accessCodeQuery.docs[0].ref.update({name:infNeedUpdate.name,phoneNumber:infNeedUpdate.phoneNumber});
-        const updatedStudentDoc = await studentQuery.docs[0].ref.get();
-        const student = {
-            id:studentQuery.docs[0].id,
-            name:updatedStudentDoc.data().name,
-            phoneNumber:formatPhoneNumber(updatedStudentDoc.data().phoneNumber),
-            email:updatedStudentDoc.data().email
-        }
-        return res.status(200).json({success:true,message:'Student  update successfully',student});
+        const data = await studentServices.updateStudent(phone);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.message});
+        return res.status(200).json({success:true,message:'Student  update successfully',student:data.student});
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({success:false,message:"Cập nhật thất bại"});
@@ -202,22 +93,9 @@ export async function updateStudent(req,res) {
 export async function deleteStudent(req,res) {
     try {
         const phone = req.params.phone;
-        const phoneFormated = normalPhoneNumber(phone);
-        const studentQuery = await db.collection('students').where('phoneNumber','==',phoneFormated).get();
-        const userQuery = await db.collection('users').where('phoneNumber','==',phoneFormated).get();
-        if(studentQuery.empty){
-            return res.status(404).json({seccess:false,message:'Student not found'});
-        }
-        if(userQuery.empty)  return res.status(404).json({seccess:false,message:'Student not found'});
-        await studentQuery.docs[0].ref.update({
-            deleted:true,
-            deleteDate: new Date()
-        });
-        await userQuery.docs[0].ref.update({
-            deleted:true,
-            deleteDate:new Date()
-        });
-        return res.status(200).json({success:true,message:'Student deleted successfully'});
+        const data = await studentServices.deleteStudent(phone);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.message});
+        return res.status(data.status).json({success:data.success,message:data.message});
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({success:false,message:"Xóa thất bại"});
@@ -228,29 +106,9 @@ export async function getMyLession(req,res) {
     try {
         const phone = req.query.phone;
         if(!phone) {return res.status(400).json({success:false,message:'Missing phone'})};
-        const myPhone = normalPhoneNumber(phone);
-        const studentQuery = await db.collection('students').where('phoneNumber','==',myPhone).get();
-        if(studentQuery.empty) return res.status(404).json({success:false,message:"Sinh viên không tồn tại"});
-        const studentData = studentQuery.docs[0].data();
-        const lessons = studentData.lessions || [];
-
-        const lessonsWithInstructorName = await Promise.all(
-        lessons.map(async (lesson) => {
-            if (!lesson.instructor) return { ...lesson, instructorName: null };
-            const instructorSnap = await db.collection("users").doc(lesson.instructor).get();
-            const instructorName = instructorSnap.exists ? instructorSnap.data().name : null;
-            const subjectSnap = await db.collection("subjects").doc(lesson.subjectId).get();
-            const title = subjectSnap.exists? subjectSnap.data().name : null
-            return {
-            ...lesson,
-            instructorName,
-            title
-            };
-        })
-        );
-        if(studentQuery.empty) return res.status(404).json({success:false,message:'Student not found'});
-        return res.status(200).json({success:true,myLessions:lessonsWithInstructorName});
-
+        const data = await studentServices.getMyLession(phone);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.message});
+        return res.status(data.status).json({success:data.success,myLessions:data.myLessions});
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({success:false,message:"Lỗi tải danh sách bài học"});
@@ -261,16 +119,9 @@ export async function markLessionDone(req,res) {
     try {
         const {phoneNumber,idLession}= req.body;
         if(!idLession) return res.status(400).json({success:false,message:"Missing ID lession"});
-        const studentQuery = await db.collection('students').where('phoneNumber','==',phoneNumber).get();
-        if(studentQuery.empty) return res.status(404).json({success:false,message:"Student not found"});
-        const myLessions = studentQuery.docs[0].data().lessions ||[];
-
-        const lessionIndex = myLessions.findIndex(item => item.id === idLession);
-        // console.log(lessionIndex)
-        if(lessionIndex ===-1) return res.status(404).json({success:false,message:"Lession not found"});
-        myLessions[lessionIndex].done = true;
-        await studentQuery.docs[0].ref.update({lessions:myLessions});
-        return res.status(200).json({success:true,message:"Lession marked as done"});
+        const data = await studentServices.markLessionDone(phoneNumber,idLession);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.message});
+        return res.status(data.status).json({success:data.success,message:data.message});
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({success:false,message:"Không thể cập nhật hoàn thành"});
@@ -485,40 +336,9 @@ export async function getMyScores(req,res) {
         // console.log(req.params)
         const {id} = req.params;
         if(!id) return res.status(400).json({success:false,message:"Student's ID is Undefined!!!"});
-
-        const studentRef = await db.collection("students").doc(id).get();
-        if(!studentRef.exists) return res.status(400).json({success:false,message:"Student dose not exists!!!"});
-
-        const classRef = await db.collection("class").doc(studentRef.data().classId).get();
-        if(!classRef.exists) return res.status(400).json({success:false,message:"Class donse not exists!!!"});
-
-        const facultySnap = await db.collection("facultys").doc(classRef.data().facultyId).get();
-        if(!facultySnap.exists) return res.status(400).json({success:false,message:"Faculty dose not exists!!!"});
-
-        const totalCredits = facultySnap.data().credits;
-
-        const scoreSnap = await db.collection("scores").where("studentId",'==',id).get();
-        if(scoreSnap.empty) return res.status(400).json({success:false,message:"Score not found"});
-        const score = scoreSnap.docs[0].data().score;
-        const filteredData = await Promise.all(
-            score.map(async(item)=>{
-                const subjectRef = await db.collection("subjects").doc(item.subjectId).get();
-                const phaseRef = await db.collection("phases").doc(item.phase).get();
-                if(subjectRef.exists && phaseRef.exists) {
-                    return {...item,subjectName:subjectRef.data().name,credits:subjectRef.data().credits,phaseName:phaseRef.data().name}
-                } else return null
-            })
-        )
-        const scoreData = filteredData.filter(Boolean);
-        let creditsIsPass = 0;
-        scoreData.forEach((s)=>{
-            if(s.total && s.pass) creditsIsPass += s.credits;
-        })
-        // const notCredits = totalCredits - creditsIsPass;
-        const credits = { creditsIsPass: creditsIsPass, totalCredits: totalCredits};
-        console.log(credits)
-
-        return res.status(200).json({success:true, scoreData,credits })
+        const data = await scoreServices.getMyScores(id);
+        if(!data.success) return res.status(data.status),json({success:data.success,message:data.message});
+        return res.status(data.status).json({success:data.success,scoreData:data.scoreData,credits:data.credits});
     } catch (error) {
         return res.status(500).json({ success: false, message: "Server error" });
     }
@@ -528,44 +348,9 @@ export async function getMyShedules(req,res){
     try {
         const {id} =req.params;
         if(!id) return res.status(400).json({success:false,message:"ID don't exists"});
-    
-        const studentRef = await db.collection("students").doc(id).get();
-        if(!studentRef.exists) return res.status(400).json({success:false,message:"studentRef don't exists"});
-    
-        const classRef = await db.collection("class").doc(studentRef.data().classId).get();
-        if(!classRef.exists) return res.status(400).json({success:false,message:"classRef don't exists"});
-    
-        const scheduleSnap = await db.collection("schedules").get();
-        if(scheduleSnap.empty) return res.status(400).json({success:false,message:"scheduleSnap don't exists"});
-
-
-        const flattenSchedule = scheduleSnap.docs.flatMap(doc => 
-            doc.data().schedule
-                .filter((s) => s.classId === classRef.id)
-                .map((s) => ({ ...s, id: doc.id }))
-        );
-
-        const schedules = await Promise.all(
-            flattenSchedule.map(async (sch) => {
-                const classSnap = await db.collection("class").doc(sch.classId).get();
-                const roomSnap = await db.collection("rooms").doc(sch.roomId).get();
-                const subjectSnap = await db.collection("subjects").doc(sch.subjectId).get();
-                const timeSnap = await db.collection("times").doc(sch.timeId).get();
-
-                if (!classSnap.exists || !roomSnap.exists || !subjectSnap.exists || !timeSnap.exists) return null;
-
-                return {
-                    ...sch,
-                    className: classSnap.data()?.name,
-                    roomName: roomSnap.data()?.name,
-                    subjectName: subjectSnap.data()?.name,
-                    timeFrame: timeSnap.data()?.timeFrame
-                };
-            })
-        );
-
-        const scheduleData = schedules.filter(Boolean);
-        return res.status(200).json({success:true,scheduleData});
+        const data = await scheduleServices.getMyShedulesOfStudent(id);
+        if(!data.success) return res.status(data.status).json({success:data.success,message:data.success});
+        return res.status(data.status).json({success:data.success,scheduleData:data.scheduleData});
     } catch (error) {
         return res.status(500).json({ success: false, message: "Server error" });
     }

@@ -13,7 +13,6 @@ const client_Twilio = twilio(TWILIO_SID,TWILIO_AUTH_TOKEN);
 
 export async function creatToken(req,res) {
     const {id,typeUser} = req.body;
-    console.log(id)
     if(!id && !typeUser) return res.status(400).json({success:false,message:"Id or TypeUser is not existing "});
     const payload = {userId:id,role:typeUser};
     const token = jwt.sign(payload,process.env.JWT_SECRET,{ expiresIn: "1h" });

@@ -59,7 +59,7 @@ export function NotificationProvider ({children}:{children:ReactNode}){
                 setNotification(res.data.notifications);
                }
             } catch (error) {
-                return error;
+                throw error;
             }
         },[id, role]);
     

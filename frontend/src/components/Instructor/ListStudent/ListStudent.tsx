@@ -155,7 +155,7 @@ export default function ListStudent(){
   const openAssignModal = async (student: Student) => {
     if(id){
       const res = await studentAPI.getAssingedSubject(id);
-      //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getSubjects/${id}`);
+      //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getSubjectsOfInstructor/${id}`);
       if(res.data.success){
         setSubjects(res.data.dataSubjects);
       }
@@ -208,8 +208,8 @@ export default function ListStudent(){
   const openAssignForClass = async ()=>{
     try {
       if(id){
-      const res = await studentAPI.getSubjects(id);
-      //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getSubjects/${id}`);
+      const res = await studentAPI.getSubjectsOfInstructor(id);
+      //axios.get(`${import.meta.env.VITE_BACKEND_URL}/instructor/getSubjectsOfInstructor/${id}`);
       if(res.data.success){
         setSubjects( res.data.dataSubjects);
       }

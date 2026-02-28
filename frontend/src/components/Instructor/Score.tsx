@@ -80,7 +80,7 @@ export default function Score() {
   // Fetch data
   const fetchSubject = useCallback(async (id: string) => {
     try {
-      const res = await studentAPI.getSubjects(id);
+      const res = await studentAPI.getSubjectsOfInstructor(id);
       if (res.data.success) setSubjects(res.data.dataSubjects);
     } catch (error) {
       console.log(error);

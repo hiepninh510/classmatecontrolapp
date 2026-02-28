@@ -3,31 +3,31 @@ import * as InstructorController from '../src/controller/InstructorController.js
 import * as FormatController from "../src/controller/formatController.js"
 
 const router = Router();
-router.get("/getSubjects/:id",
+router.get("/subjects-of-instructor/:id",
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
-    InstructorController.getSubjects
+    InstructorController.getSubjectsOfInstructor
 );
 
-router.get('/getAllClass/:id',
+router.get('/all-classes/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.getAllClass
 );
 
-router.get('/getAssignedSubject/:id',
+router.get('/subject-was-assigned/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.getAssignedSubject
 );
 
-router.get('/getListStudentToEnterScore',
+router.get('/list-student-to-enter-score',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.getListStudentToEnterScore
 );
 
-router.get('/getMySchedules/:id',
+router.get('/mySchedules/:id',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.getMySchedules

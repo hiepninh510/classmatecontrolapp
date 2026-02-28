@@ -7,7 +7,7 @@ export const adminAPI = {
     getAllStudent:()=> axois.get(`${API}/admin/getAllStudent`),
     getAllInstructors:()=> axois.get(`${API}/admin/getAllInstructors`),
     getAllSubject:()=> axois.get(`${API}/admin/getAllSubject`),
-    getAllClass:()=> axois.get(`${API}/admin/getAllClass`),
+    getAllClass:()=> axois.get(`${API}/admin/all-classes`),
     getAllRoom:() => axois.get(`${API}/admin/getAllRoom`),
     getAllTimeFrames:() => axois.get(`${API}/admin/getAllTimeFrames`),
     getAllFaculties:()=> axois.get(`${API}/admin/getAllFaculties`),
@@ -39,7 +39,14 @@ export const adminAPI = {
 
     deleteInstructor:(id:string) => axois.delete(`${API}/admin/deleteInstructor/${id}`),
     deleteClass:(id:string) => axois.delete(`${API}/admin/deleteClass/${id}`),
-    deleteSchedule:(id:string,data:any) => axois.delete(`${API}/admin/deleteSchedules/${id}`,data),
+    deleteSchedule:(id:string,data:any) => axois.delete(`${API}/admin/deleteSchedules/${id}`,{
+        params:{
+            classId:data.classId,
+            subjectId:data.subjectId,
+            timeId:data.timeId,
+            dayOfWeek:data.dayOfWeek,
+        }
+    }),
     deleteFaculty:(id:string) => axois.delete(`${API}/admin/deleteFaculty/${id}`),
     deleteSubject:(id:string) => axois.delete(`${API}/admin/deleteSubject`,{params:{id}}),
 

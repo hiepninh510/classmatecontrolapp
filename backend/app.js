@@ -82,6 +82,7 @@ app.use(express.urlencoded({ extended: true }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 app.use("/src", express.static(path.join(__dirname, "src")));
+app.use(express.urlencoded({ extended: true }));
 
 route(app);
 

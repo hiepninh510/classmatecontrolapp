@@ -31,7 +31,7 @@ export function SchedulesAdmin() {
 
     const fetchFaculties = async ()=>{
         const res = await adminAPI.getAllFaculties();
-        if(res.data.success) setFaculties(res.data.facultys);
+        if(res.data.success) setFaculties(res.data.faculties);
     }
 
     useEffect(() => {
@@ -79,8 +79,10 @@ export function SchedulesAdmin() {
             const data = {
                 classId:record.classId,
                 subjectId:record.subjectId,
-                dayOfWeek:record.dayOfWeek
+                timeId:record.timeId,
+                dayOfWeek:record.dayOfWeek[0],
             }
+            console.log("data",data);
             const res = await adminAPI.deleteSchedule(record.id,data);
             if (res.data.success) {
                 setSchedules(prev => prev.filter(s => s.id !== record.id));
@@ -97,7 +99,7 @@ export function SchedulesAdmin() {
         if (editingSchedule) {
             const res = await adminAPI.updateSchedule(editingSchedule.idS, values);
             if (res.data.success) {
-                console.log("valueUpdate",res.data.valueUpdate);
+                //console.log("valueUpdate",res.data.valueUpdate);
             setSchedules(prev =>
                 prev.map(s => (s.idS === editingSchedule.idS ? res.data.valuesForUI  : s))
             );

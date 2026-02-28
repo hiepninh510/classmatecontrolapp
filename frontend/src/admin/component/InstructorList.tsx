@@ -118,7 +118,7 @@ export default function InstructorList() {
       const resSubject = await adminAPI.getAllSubject();
       if(resSubject.status) setSubjectOptions(resSubject.data.subjects);
       const resFacultys = await adminAPI.getAllFaculties();
-      if(resFacultys.status) setfacultyOptions(resFacultys.data.facultys);
+      if(resFacultys.status) setfacultyOptions(resFacultys.data.faculties);
     } catch (error:any) {
       console.log(error);
       openNotification("error",error.response.data.message)

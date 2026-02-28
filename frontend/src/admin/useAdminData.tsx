@@ -59,7 +59,7 @@ export function useAdminData() {
   const fetchFaculties = async()=>{
     try {
         const res = await adminAPI.getAllFaculties();
-        if(res.data.success) setFaculties(res.data.facultys);
+        if(res.data.success) setFaculties(res.data.faculties);
         else openNotification("warning", res.data.message);
     } catch (error) {
         console.log(error)
