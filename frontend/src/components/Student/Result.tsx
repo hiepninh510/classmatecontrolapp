@@ -11,7 +11,7 @@ export default function Result(){
     const {id} = useAuth();
 
     const fetchMyScores = async (id:string)=>{
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/getMyScores/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/my-scores/${id}`);
         if(res.data.success){
             setMyScores(res.data.scoreData);
             setCredits(res.data.credits);

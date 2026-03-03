@@ -31,7 +31,7 @@ export function ChatRooms({idUser}:IdUserProp){
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 let res:any ;
                 if(role === "student") {
-                      res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chats/messagesStudent`,value);
+                      res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chats/messages-student`,value);
                 } else if(role === "instructor") {
                       res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chats/messages`,value);
                 } else if(role === "admin"){

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as ChatsSocketIO from '../src/chatSocketio/chats.js';
-import * as FormatController from "../src/controller/formatController.js";
+import * as FormatController from "../src/middleware/formatController.js";
 
 const router = Router();
 router.post('/messages',
@@ -8,7 +8,7 @@ router.post('/messages',
     FormatController.authorize(["student","instructor","admin"]),
     ChatsSocketIO.openChatRoom
 );
-router.post('/messagesStudent',
+router.post('/messages-student',
     FormatController.authenticate,
     FormatController.authorize(["student","instructor","admin"]),
     ChatsSocketIO.openChatRoomOfStudent

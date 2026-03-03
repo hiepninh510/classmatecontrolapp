@@ -140,7 +140,6 @@ export default function ListStudent(){
       } else {
         // console.log("valuse",values);
         const res = await studentAPI.add(values);
-        //axios.post(`${import.meta.env.VITE_BACKEND_URL}/student/addStudent`, values);
         if(res.data.success) openNotification("success",'Thêm sinh viên thành công');
         else openNotification("error",'Thêm sinh viên thất bại');
       }

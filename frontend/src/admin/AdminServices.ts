@@ -4,16 +4,16 @@ const API = import.meta.env.VITE_BACKEND_URL;
 
 
 export const adminAPI = {
-    getAllStudent:()=> axois.get(`${API}/admin/getAllStudent`),
-    getAllInstructors:()=> axois.get(`${API}/admin/getAllInstructors`),
-    getAllSubject:()=> axois.get(`${API}/admin/getAllSubject`),
+    getAllStudent:()=> axois.get(`${API}/admin/students`),
+    getAllInstructors:()=> axois.get(`${API}/admin/instructors`),
+    getAllSubject:()=> axois.get(`${API}/admin/subjects`),
     getAllClass:()=> axois.get(`${API}/admin/all-classes`),
-    getAllRoom:() => axois.get(`${API}/admin/getAllRoom`),
-    getAllTimeFrames:() => axois.get(`${API}/admin/getAllTimeFrames`),
-    getAllFaculties:()=> axois.get(`${API}/admin/getAllFaculties`),
-    getSchedule:(code:string) => axois.get(`${API}/admin/getSchedule/${code}`),
-    getScheduleWithFacultyId:(facultyId:string) => axois.get(`${API}/admin/getSchedulesFromFaculties/${facultyId}`),
-    getScheduleWitCodeFacultyId:(code:string,facultyId:string) => axois.get(`${API}/admin/getSchedulesWithCodeFacultyId`,{
+    getAllRoom:() => axois.get(`${API}/admin/rooms`),
+    getAllTimeFrames:() => axois.get(`${API}/admin/timeframes`),
+    getAllFaculties:()=> axois.get(`${API}/admin/faculties`),
+    getSchedule:(code:string) => axois.get(`${API}/admin/schedule/${code}`),
+    getScheduleWithFacultyId:(facultyId:string) => axois.get(`${API}/admin/schedules-from-faculties/${facultyId}`),
+    getScheduleWitCodeFacultyId:(code:string,facultyId:string) => axois.get(`${API}/admin/schedules-with-code-faculty-id`,{
         params:{
             code,
             facultyId
@@ -21,25 +21,25 @@ export const adminAPI = {
     }),
 
     getFacultiesForAdmin:()=>axois.get(`${API}/admin/faculties`),
-    getSubjectForAdmin:()=>axois.get(`${API}/admin/getSubjectForAdmin`),
+    getSubjectForAdmin:()=>axois.get(`${API}/admin/subject-for-admin`),
 
-    updateInstructor:(id:string,data:any) => axois.put(`${API}/admin/updateInstructor/${id}`,data),
-    updateRoomStatus:(id:string,active:boolean|undefined)=> axois.put(`${API}/admin/updateRoomStatus/${id}`,{active}),
-    updateSchedule:(idS:string,data:any)=>axois.put(`${API}/admin/updateSchedule/${idS}`,data),
-    updateFaculty:(id:string,data:any)=>axois.put(`${API}/admin/updateFaculty/${id}`,data),
-    updateSubject:(id:string,data:any)=> axois.put(`${API}/admin/updateSubject/${id}`,data),
+    updateInstructor:(id:string,data:any) => axois.put(`${API}/admin/instructor/${id}`,data),
+    updateRoomStatus:(id:string,active:boolean|undefined)=> axois.put(`${API}/admin/room-status/${id}`,{active}),
+    updateSchedule:(idS:string,data:any)=>axois.put(`${API}/admin/schedule/${idS}`,data),
+    updateFaculty:(id:string,data:any)=>axois.put(`${API}/admin/faculty/${id}`,data),
+    updateSubject:(id:string,data:any)=> axois.put(`${API}/admin/subject/${id}`,data),
 
-    addInstructor:(data:any) => axois.post(`${API}/admin/createInstructor`,data),
-    addClass:(data:any)=>axois.post(`${API}/admin/creatClass`,data),
-    addRoom:(data:any) => axois.post(`${API}/admin/creatRoom`,data),
-    addSchedule:(data:any) => axois.post(`${API}/admin/addSchedule`,data),
-    addFaculty:(data:any) => axois.post(`${API}/admin/addFaculty`,data),
-    addSubject:(data:any) => axois.post(`${API}/admin/addSubject`,data),
+    addInstructor:(data:any) => axois.post(`${API}/admin/instructor`,data),
+    addClass:(data:any)=>axois.post(`${API}/admin/class`,data),
+    addRoom:(data:any) => axois.post(`${API}/admin/room`,data),
+    addSchedule:(data:any) => axois.post(`${API}/admin/schedule`,data),
+    addFaculty:(data:any) => axois.post(`${API}/admin/faculty`,data),
+    addSubject:(data:any) => axois.post(`${API}/admin/subject`,data),
 
 
-    deleteInstructor:(id:string) => axois.delete(`${API}/admin/deleteInstructor/${id}`),
-    deleteClass:(id:string) => axois.delete(`${API}/admin/deleteClass/${id}`),
-    deleteSchedule:(id:string,data:any) => axois.delete(`${API}/admin/deleteSchedules/${id}`,{
+    deleteInstructor:(id:string) => axois.delete(`${API}/admin/instructor/${id}`),
+    deleteClass:(id:string) => axois.delete(`${API}/admin/class/${id}`),
+    deleteSchedule:(id:string,data:any) => axois.delete(`${API}/admin/schedules/${id}`,{
         params:{
             classId:data.classId,
             subjectId:data.subjectId,
@@ -47,8 +47,8 @@ export const adminAPI = {
             dayOfWeek:data.dayOfWeek,
         }
     }),
-    deleteFaculty:(id:string) => axois.delete(`${API}/admin/deleteFaculty/${id}`),
-    deleteSubject:(id:string) => axois.delete(`${API}/admin/deleteSubject`,{params:{id}}),
+    deleteFaculty:(id:string) => axois.delete(`${API}/admin/faculty/${id}`),
+    deleteSubject:(id:string) => axois.delete(`${API}/admin/subject/${id}`),
 
 
 

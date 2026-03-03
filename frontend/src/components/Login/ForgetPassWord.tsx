@@ -60,7 +60,7 @@ export default function ForgotPassword() {
           email,
           message:"Bạn vừa cập nhật mật khẩu mới"
         }
-        const res = await api.post(`${import.meta.env.VITE_BACKEND_URL}/notification/createNotificationFromAdmin`,data);
+        const res = await api.post(`${import.meta.env.VITE_BACKEND_URL}/notification/notification-from-admin`,data);
         if(res.status === 200){
           openNotification("success", "Đổi mật khẩu thành công!");
           navigate("/");

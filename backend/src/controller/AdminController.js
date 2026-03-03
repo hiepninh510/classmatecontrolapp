@@ -10,16 +10,6 @@ import * as timeFrameServices from '../services/timeFramesServices.js';
 import * as facultyServices from '../services/facultyServices.js';
 import * as scheduleServices from '../services/scheduleServices.js';
 
-function generateId(length = 10) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let id = "";
-  for (let i = 0; i < length; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
-}
-
-
 export async function getAllStudent(req,res) {
     try {
         const result = await studentServices.getAllStudents();
@@ -110,11 +100,6 @@ export async function getAllFaculties(req,res) {
 // Thêm instructor
 export async function createInstructor(req,res) {
     try {
-        // const {name,phoneNumber,email,code,classes,subjects,faculty} = req.body;
-        // console.log("req.body",req.body);
-        // if(!name || !email || !code){
-        //     return res.status(400).json({success:false,message:'Missing fields'})
-        // }
         const phase = await phaseServices.getEarliesPhase();
         const teachingAssignmentSnap = await teachingAssignmentServices.getOneTeachingAsssignments(req.body.classes,req.body.subjects,phase.id);
         if(!teachingAssignmentSnap) return res.status(409).json({success:false,message:'Instructor existed '});
@@ -195,7 +180,7 @@ export async function updateRoomStatus(req,res) {
 export async function addRoom(req,res) {
     try {
         const values = req.body;
-        if(!values || Object.keys(values).length ===0) return res.status(200).json({success:false,message:"Dữ liệu rỗng"});
+        //if(!values || Object.keys(values).length === 0) return res.status(400).json({success:false,message:"Dữ liệu rỗng"});
         const newRoom =  await roomServices.addRoom(values);
         return res.status(200).json({success:true,newRoom})
     } catch (error) {
@@ -207,7 +192,7 @@ export async function addRoom(req,res) {
 export async function getSchedulesFromFaculties(req,res){
     try {
         const {facultyId} = req.params;
-        if(!facultyId) return res.status(400).json({success:false,message:"Dữ liệu rỗng"});
+        //if(!facultyId) return res.status(400).json({success:false,message:"Dữ liệu rỗng"});
         const schedules = await scheduleServices.findScheduleOfInstructor(facultyId);
         return res.status(200).json({ success: true, schedules });
     } catch (error) {
@@ -241,7 +226,7 @@ export async function deleteSchedules(req,res) {
         // dayOfWeek = rawDayOfWeek.split(',').map(Number);
         // }
 
-        console.log({ id, classId, subjectId, timeId, dayOfWeek });
+        //console.log({ id, classId, subjectId, timeId, dayOfWeek });
         if(isNaN(dayOfWeek[0])) return res.status(404).json({ success: false, message: "OMG" });
         const schedule = await scheduleServices.deleteSchedules(id,timeId,dayOfWeek,classId,subjectId);
         if(!schedule) return res.status(404).json({ success: false, message: "Schedule document not found" });
@@ -452,7 +437,7 @@ export async function updateSubject(req,res) {
 
 export async function deleteSubject(req,res) {
     try {
-        const isDelete = await subjectServices.deleteSubject(req.query.id);
+        const isDelete = await subjectServices.deleteSubject(req.params);
         if(isDelete) return res.status(200).json({success:true,message:"Xóa thành công"});
         else{
             return res.status(200).json({success:false,message:"Môn học không tồn tại"});

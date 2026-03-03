@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { db, FieldValue } from '../src/config/firebase.js';
 import { v4 as uuidv4 } from "uuid";
-import * as formatController from '../src/controller/formatController.js'
+import * as formatController from '../src/middleware/formatController.js'
 import {notificationHello} from '../src/controller/NotificationController.js'
 
 let io;

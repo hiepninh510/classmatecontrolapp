@@ -46,22 +46,18 @@ export function NotificationProvider ({children}:{children:ReactNode}){
     },[id]);
 
     const fetchNotifications = useCallback(async ()=>{
-            try {
-               const userId = id;
-               const values = {
-                role,
-                userId
-               };
-               const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification`,{
-                params:values
-               });
-               if(res.data.success){
-                setNotification(res.data.notifications);
-               }
-            } catch (error) {
-                throw error;
-            }
-        },[id, role]);
+        const userId = id;
+        const values = {
+            role,
+            userId
+        };
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification`,{
+            params:values
+        });
+        if(res.data.success){
+            setNotification(res.data.notifications);
+        }
+    },[id, role]);
     
 
     useEffect(()=>{
@@ -72,7 +68,7 @@ export function NotificationProvider ({children}:{children:ReactNode}){
     const handleDeleteOneNotifiction = useCallback(async (id:string)=>{
         try {
             if(id){
-                const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/notification/deleteOneNotification`,{params:{id}});
+                const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/notification/one-notification`,{params:{id}});
                 if(res.data.success) {
                 setNotification(prev => prev.filter(n => n.id !== id));
             }
@@ -98,7 +94,7 @@ export function NotificationProvider ({children}:{children:ReactNode}){
 
     const markAllNotification =useCallback(async () =>{
         try {
-            const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification/readAllNotifications`,{id});
+            const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/notification/all-notifications`,{id});
             if(res.data.success) {
                 setNotification((prev) => prev.map((n) =>( {...n,isRead:true})))
             }

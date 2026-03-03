@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as AuthenticationController from "../src/controller/AuthenticationController.js"
 import * as StudentController from "../src/controller/StudentController.js"
-import * as FormatController from "../src/controller/formatController.js"
+import * as FormatController from "../src/middleware/formatController.js"
 const router = Router();
 
 router.post('/validateAccessCode',FormatController.validatePhoneNumber,AuthenticationController.validateAccessCode);

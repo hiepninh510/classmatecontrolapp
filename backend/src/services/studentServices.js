@@ -1,7 +1,7 @@
 import { db } from "../config/firebase.js";
 import * as classesServices from './classesServices.js';
 import * as facultyServices from './facultyServices.js';
-import { formatPhoneNumber,normalPhoneNumber } from '../controller/formatController.js';
+import { formatPhoneNumber,normalPhoneNumber } from '../middleware/formatController.js';
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";

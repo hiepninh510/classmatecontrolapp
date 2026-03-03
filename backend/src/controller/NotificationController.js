@@ -1,5 +1,5 @@
 import { db } from '../config/firebase.js';
-import {normalPhoneNumber, formatPhoneNumber } from './formatController.js';
+import {normalPhoneNumber, formatPhoneNumber } from '../middleware/formatController.js';
 // import {io} from "../../app.js"
 import { getIO } from '../../socket/index.js';
 

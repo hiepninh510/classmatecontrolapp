@@ -70,7 +70,7 @@ export default function ChatBox({ roomId,idReceiver }: ChatBoxProps) {
       if(idReceiver){
         setUserId(idReceiver);
       }else {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification/getIdUserToNotification`,{params:{
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/notification/id-user-to-notification`,{params:{
           role,
           roomId,
           phone

@@ -141,7 +141,7 @@ export async function convertCodeID(req,res,next) {
         .limit(1)
         .get();
 
-        if(instructorRef.empty) return res.status(200).json({success:false,message:"Không tìm thấy giảng viên"});
+        if(instructorRef.empty) return res.status(404).json({success:false,message:"Không tìm thấy giảng viên"});
         req.params.id = instructorRef.docs[0].id;
         next();
     } catch (error) {

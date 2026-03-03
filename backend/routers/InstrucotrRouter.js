@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as InstructorController from '../src/controller/InstructorController.js'
-import * as FormatController from "../src/controller/formatController.js"
+import * as FormatController from "../src/middleware/formatController.js"
 
 const router = Router();
 router.get("/subjects-of-instructor/:id",
@@ -40,13 +40,13 @@ router.get('/',
 );
 
 
-router.post('/assignLessionForClass',
+router.post('/lession-for-class',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.assignLessionForClass
 );
 
-router.put('/saveScore',
+router.put('/score',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     InstructorController.saveScore

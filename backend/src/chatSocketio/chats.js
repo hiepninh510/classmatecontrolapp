@@ -1,5 +1,5 @@
 import {db} from '../config/firebase.js'
-import { normalPhoneNumber } from '../controller/formatController.js';
+import { normalPhoneNumber } from '../middleware/formatController.js';
 
 export async function openChatRoom(req, res) {
   try {

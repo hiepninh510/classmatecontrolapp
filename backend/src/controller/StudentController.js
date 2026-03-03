@@ -1,5 +1,5 @@
 import {admin, db} from '../config/firebase.js'
-import { formatPhoneNumber,normalPhoneNumber } from './formatController.js';
+import { formatPhoneNumber,normalPhoneNumber } from '../middleware/formatController.js';
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";

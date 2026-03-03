@@ -1,6 +1,6 @@
 import { db } from "../config/firebase.js";
-import {formatPhoneNumber} from '../controller/formatController.js'
-import { normalPhoneNumber } from '../controller/formatController.js';
+import {formatPhoneNumber} from '../middleware/formatController.js'
+import { normalPhoneNumber } from '../middleware/formatController.js';
 
 export async function countInstructor(id) {
     try {

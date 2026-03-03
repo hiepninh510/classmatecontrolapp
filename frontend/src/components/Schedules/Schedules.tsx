@@ -18,7 +18,7 @@ export default function Schedules(){
         setSchedules(res.data.scheduleData);
       }
     } if(role === "student"){
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/getMySchedules/${id}`);
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/my-schedules/${id}`);
       if(res.data.success){
         setSchedules(res.data.scheduleData);
       }

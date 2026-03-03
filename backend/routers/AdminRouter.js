@@ -1,24 +1,25 @@
 import { Router } from "express";
-import * as FormatController from "../src/controller/formatController.js";
+import * as FormatController from "../src/middleware/formatController.js";
 import * as AdminController from "../src/controller/AdminController.js";
 import * as InstructorController from "../src/controller/InstructorController.js"
+import * as Middleware from "../src/middleware/middleware.js"
 const router = Router();
 
 
 //Get Admin
-router.get('/getAllStudent',
+router.get('/students',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.getAllStudent
 );
 
-router.get('/getAllSubject',
+router.get('/subjects',
     FormatController.authenticate,
     FormatController.authorize(['admin']),
     AdminController.getAllSubjects
 );
 
-router.get('/getAllRoom',
+router.get('/rooms',
     FormatController.authenticate,
     FormatController.authorize(['admin']),
     AdminController.getAllRoom
@@ -30,44 +31,46 @@ router.get('/all-classes',
     AdminController.getAllClasses
 );
 
-router.get('/getAllInstructors',
+router.get('/instructors',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.getAllIntructors
 );
 
-router.get('/getSchedulesFromFaculties/:facultyId',
+router.get('/schedules-from-faculties/:facultyId',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_id(),
     AdminController.getSchedulesFromFaculties
 );
 
-router.get('/getAllTimeFrames',
+router.get('/timeframes',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.getAllTimeFrames
 )
 
-router.get('/getSchedulesWithCodeFacultyId',
+router.get('/schedules-with-code-faculty-id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values_query(),
     AdminController.getSchedulesWithCodeFacultyId
 );
 
-router.get('/getAllFaculties',
+router.get('/faculties',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.getAllFaculties
 );
 
-router.get('/getSchedule/:code',
+router.get('/schedule/:code',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     FormatController.convertCodeID,
     InstructorController.getMySchedules
 );
 
-router.get('/getSubjectForAdmin',
+router.get('/subject-for-admin',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.getSubjectForAdmin
@@ -88,38 +91,43 @@ router.get('/messages',
 
 
 //Post Admin
-router.post('/createInstructor',
+router.post('/instructor',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values(),
     FormatController.validatePhoneNumber,
     AdminController.createInstructor
 );
 
-router.post('/creatClass',
+router.post('/class',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values(),
     AdminController.creatClass
 );
 
-router.post('/creatRoom',
+router.post('/room',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values(),
     AdminController.addRoom
 );
 
-router.post('/addSchedule',
+router.post('/schedule',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values(),
     AdminController.addSchedule
 );
 
-router.post('/addFaculty',
+router.post('/faculty',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_values(),
     AdminController.addFaculty
 );
 
-router.post('/addSubject',
+router.post('/subject',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.addSubject
@@ -127,33 +135,33 @@ router.post('/addSubject',
 
 
 //Put Admin
-router.put('/updateInstructor/:id',
+router.put('/instructor/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     FormatController.validatePhoneNumber,
     AdminController.updateInstructor
 );
 
-router.put('/updateRoomStatus/:id',
+router.put('/room-status/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     FormatController.validatePhoneNumber,
     AdminController.updateRoomStatus
 );
 
-router.put('/updateSchedule/:idS',
+router.put('/schedule/:idS',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.updateSchedule
 );
 
-router.put('/updateFaculty/:id',
+router.put('/faculty/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.updateFaculty
 );
 
-router.put('/updateSubject/:id',
+router.put('/subject/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.updateSubject
@@ -164,33 +172,38 @@ router.put('/updateSubject/:id',
 
 //Delete Admin
 
-router.delete('/deleteClass/:id',
+router.delete('/class/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     AdminController.deleteOneClass
 );
 
-router.delete('/deleteInstructor/:id',
+router.delete('/instructor/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_id(),
     AdminController.deleteInstructor
 );
 
-router.delete('/deleteSchedules/:id',
+router.delete('/schedules/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_id(),
+    Middleware.check_values_query(),
     AdminController.deleteSchedules
 );
 
-router.delete('/deleteFaculty/:id',
+router.delete('/faculty/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_id(),
     AdminController.deleteFaculty
 );
 
-router.delete('/deleteSubject',
+router.delete('/subject/:id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
+    Middleware.check_id(),
     AdminController.deleteSubject
 );
 

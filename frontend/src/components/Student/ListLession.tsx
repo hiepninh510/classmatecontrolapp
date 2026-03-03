@@ -25,7 +25,7 @@ export default function ListLession(){
         setLessions((prev)=>prev.map((item)=>item.id===id?{...item,done:checked}:item));
         try {
           const phoneNumber = localStorage.getItem('phoneNumber');
-          const updateDone = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/student/finishLession`,{id,checked,phoneNumber});
+          const updateDone = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/student/lession`,{id,checked,phoneNumber});
           if(updateDone.status === 200) setLessions(updateDone.data.updateLessionForUI)
         } catch (error:any) {
           console.log(error);

@@ -2,7 +2,7 @@ import {db} from '../config/firebase.js';
 import twilio from 'twilio';
 import 'dotenv/config';
 import { FieldValue } from "firebase-admin/firestore";
-import { formatPhoneNumber } from './formatController.js';
+import { formatPhoneNumber } from '../middleware/formatController.js';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 

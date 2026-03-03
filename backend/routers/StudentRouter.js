@@ -1,30 +1,30 @@
 import { Router } from "express";
 import * as StudentController from "../src/controller/StudentController.js"
-import * as FormatController from "../src/controller/formatController.js"
+import * as FormatController from "../src/middleware/formatController.js"
 const router = Router();
 
-router.post('/assignLesson',
+router.post('/lesson',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     FormatController.validatePhoneNumber,
     StudentController.assignLesson
 );
 
-router.post('/addStudent',
+router.post('/student',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     FormatController.validatePhoneNumber,
     StudentController.addStudent
 );
 
-router.post('/markLessionDone',
+router.post('/lession-done',
     FormatController.authenticate,
     FormatController.authorize(["student","admin"]),
     FormatController.validatePhoneNumber,
     StudentController.markLessionDone
 );
 // router.post('/sentEmailToSetup',FormatController.validatePhoneNumber,StudentController.sentEmailToSetUp);
-router.put('/finishLession',
+router.put('/lession',
     FormatController.authenticate,
     FormatController.authorize(["student","admin"]),
     StudentController.finishLession
@@ -56,13 +56,13 @@ router.get('/students/:id',
     StudentController.getStudentList
 );
 
-router.get('/getMyScores/:id',
+router.get('/my-scores/:id',
     FormatController.authenticate,
     FormatController.authorize(["student","admin"]),
     StudentController.getMyScores
 );
 
-router.get('/getMySchedules/:id',
+router.get('/my-schedules/:id',
     FormatController.authenticate,
     FormatController.authorize(["student","admin"]),
     StudentController.getMyShedules
@@ -74,7 +74,7 @@ router.get('/:phone',
     StudentController.getOneStudent
 );
 
-router.put('/editStudent/:phone',
+router.put('/edit-student/:phone',
     FormatController.authenticate,
     FormatController.authorize(["instructor","admin"]),
     StudentController.updateStudent
