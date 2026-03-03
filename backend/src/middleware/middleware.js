@@ -40,3 +40,16 @@ export async function check_values_query(req,res,next) {
 
     next();
 }
+
+export async function validate_code_facultyId(req,res,next) {
+    const {code,facultyId} = req.query;
+    if(!code || !facultyId) return res.status(400).json({success:false,message:'Missing fields'});
+    next();
+}
+
+export async function validate_createInstructor(req,res,next) {
+    const {name,phoneNumber,email,code,classes,subjects,faculty} = req.body; 
+    if(!name || !phoneNumber || !email || !code || !classes || !subjects || !faculty)
+        return res.status(400).json({success:false,message:'Missing fields'});
+    next();
+}

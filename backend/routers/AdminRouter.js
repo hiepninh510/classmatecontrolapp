@@ -54,6 +54,7 @@ router.get('/schedules-with-code-faculty-id',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     Middleware.check_values_query(),
+    Middleware.validate_code_facultyId(),
     AdminController.getSchedulesWithCodeFacultyId
 );
 
@@ -95,6 +96,7 @@ router.post('/instructor',
     FormatController.authenticate,
     FormatController.authorize(["admin"]),
     Middleware.check_values(),
+    Middleware.validate_createInstructor(),
     FormatController.validatePhoneNumber,
     AdminController.createInstructor
 );
